@@ -122,6 +122,12 @@ export default function WebsiteFormsTab({ templates, submissions, onRefresh }) {
           onClose={() => setViewingSubs(null)}
         />
       )}
+      {publishingTemplate && (
+        <WebsiteFormPublishPanel
+          template={publishingTemplate}
+          onClose={() => setPublishingTemplate(null)}
+        />
+      )}
     </div>
   );
 }

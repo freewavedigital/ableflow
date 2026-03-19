@@ -12,6 +12,7 @@ import JobOutcomePanel from "@/components/jobs/JobOutcomePanel";
 import JobScheduleCard from "@/components/jobs/JobScheduleCard";
 import JobMediaPanel from "@/components/jobs/JobMediaPanel";
 import JobActivityFeed from "@/components/jobs/JobActivityFeed";
+import JobFormPanel from "@/components/jobs/JobFormPanel";
 import { usePermissions } from "@/hooks/usePermissions";
 import { format } from "date-fns";
 import AgreementPanel from "@/components/shared/AgreementPanel";

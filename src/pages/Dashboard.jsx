@@ -2,221 +2,253 @@ import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { useBranch } from "@/hooks/useBranch";
+import { useAuth } from "@/lib/AuthContext";
 import { Link } from "react-router-dom";
 import {
-  MessageSquarePlus,
+  Inbox,
   Briefcase,
   FileText,
   Receipt,
-  ArrowRight,
   Clock,
   AlertTriangle,
+  ArrowRight,
+  CalendarDays,
+  CheckSquare,
+  Plus,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
-import { format } from "date-fns";
+import { format, isToday, isPast, parseISO } from "date-fns";
 
-function StatCard({ icon: Icon, label, value, color, to }) {
+// ─── Stat tile ───────────────────────────────────────────────────────────────
+function StatTile({ icon: Icon, label, value, sub, to, accent }) {
+  const accentMap = {
+    blue: "bg-blue-50 text-blue-600 border-blue-100",
+    amber: "bg-amber-50 text-amber-600 border-amber-100",
+    purple: "bg-purple-50 text-purple-600 border-purple-100",
+    emerald: "bg-emerald-50 text-emerald-600 border-emerald-100",
+  };
   return (
     <Link to={to}>
-      <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-        <CardContent className="p-5">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">{label}</p>
-              <p className="text-3xl font-semibold mt-1 tracking-tight">{value}</p>
+      <Card className="hover:shadow-md transition-shadow cursor-pointer group border">
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between mb-3">
+            <div className={`w-9 h-9 rounded-lg border flex items-center justify-center ${accentMap[accent]}`}>
+              <Icon className="w-4.5 h-4.5" />
             </div>
-            <div className={`w-10 h-10 rounded-xl bg-${color}-50 flex items-center justify-center`}>
-              <Icon className={`w-5 h-5 text-${color}-600`} />
-            </div>
+            <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/0 group-hover:text-muted-foreground transition-colors" />
           </div>
-          <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground group-hover:text-primary transition-colors">
-            View all <ArrowRight className="w-3 h-3" />
-          </div>
+          <p className="text-2xl font-bold tracking-tight">{value}</p>
+          <p className="text-sm text-muted-foreground font-medium">{label}</p>
+          {sub && <p className="text-xs text-muted-foreground/60 mt-0.5">{sub}</p>}
         </CardContent>
       </Card>
     </Link>
   );
 }
 
+// ─── Feed row ─────────────────────────────────────────────────────────────────
+function FeedRow({ to, primary, secondary, right }) {
+  return (
+    <Link to={to} className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-muted/60 transition-colors gap-3">
+      <div className="min-w-0">
+        <p className="text-sm font-medium truncate">{primary}</p>
+        <p className="text-xs text-muted-foreground truncate">{secondary}</p>
+      </div>
+      <div className="flex-shrink-0">{right}</div>
+    </Link>
+  );
+}
+
+// ─── Section card ─────────────────────────────────────────────────────────────
+function FeedCard({ icon: Icon, title, cta, ctaTo, children, empty }) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Icon className="w-4 h-4 text-muted-foreground" />
+            {title}
+          </CardTitle>
+          {cta && (
+            <Link to={ctaTo} className="text-xs text-primary hover:underline flex items-center gap-0.5">
+              {cta} <ArrowRight className="w-3 h-3" />
+            </Link>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="pt-1">
+        {children
+          ? children
+          : <p className="text-sm text-muted-foreground text-center py-5">{empty}</p>}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const { selectedBranchId } = useBranch();
+  const { user } = useAuth();
+  const isTechnician = user?.role === "technician";
 
   const { data: enquiries = [] } = useQuery({
     queryKey: ["enquiries"],
     queryFn: () => base44.entities.Enquiry.list("-created_date", 100),
+    enabled: !isTechnician,
   });
-
   const { data: jobs = [] } = useQuery({
     queryKey: ["jobs"],
-    queryFn: () => base44.entities.Job.list("-created_date", 100),
+    queryFn: () => base44.entities.Job.list("-scheduled_date", 200),
   });
-
   const { data: quotes = [] } = useQuery({
     queryKey: ["quotes"],
     queryFn: () => base44.entities.Quote.list("-created_date", 50),
+    enabled: !isTechnician,
   });
-
   const { data: invoices = [] } = useQuery({
     queryKey: ["invoices"],
     queryFn: () => base44.entities.Invoice.list("-created_date", 50),
+    enabled: !isTechnician,
   });
 
-  const filterByBranch = (items) =>
-    selectedBranchId === "all"
-      ? items
-      : items.filter((i) => i.branch_id === selectedBranchId);
+  const byBranch = (list) =>
+    selectedBranchId === "all" ? list : list.filter((i) => i.branch_id === selectedBranchId);
 
-  const filteredEnquiries = filterByBranch(enquiries);
-  const filteredJobs = filterByBranch(jobs);
-  const filteredQuotes = filterByBranch(quotes);
-  const filteredInvoices = filterByBranch(invoices);
+  const fJobs = byBranch(jobs);
+  const fEnq = byBranch(enquiries);
+  const fQuotes = byBranch(quotes);
+  const fInvoices = byBranch(invoices);
 
-  const activeEnquiries = filteredEnquiries.filter(
-    (e) => !["converted_to_job", "lost"].includes(e.status)
-  );
-  const activeJobs = filteredJobs.filter(
-    (j) => !["completed", "cancelled"].includes(j.status)
-  );
-  const pendingQuotes = filteredQuotes.filter(
-    (q) => ["draft", "sent", "viewed"].includes(q.status)
-  );
-  const unpaidInvoices = filteredInvoices.filter(
-    (i) => ["sent", "overdue"].includes(i.status)
-  );
+  const today = format(new Date(), "yyyy-MM-dd");
+  const todayJobs = fJobs.filter((j) => j.scheduled_date === today);
+  const activeJobs = fJobs.filter((j) => !["closed", "cancelled", "invoiced"].includes(j.status));
+  const activeLeads = fEnq.filter((e) => !["converted_to_job", "lost"].includes(e.status));
+  const newLeads = fEnq.filter((e) => e.status === "new_lead");
+  const pendingQuotes = fQuotes.filter((q) => ["draft", "sent", "viewed"].includes(q.status));
+  const unpaidInvoices = fInvoices.filter((i) => ["sent", "overdue"].includes(i.status));
 
-  const todayJobs = filteredJobs.filter(
-    (j) => j.scheduled_date === format(new Date(), "yyyy-MM-dd")
-  );
-
-  const followUps = filteredEnquiries
-    .filter((e) => e.follow_up_date && new Date(e.follow_up_date) <= new Date())
+  const overdueFollowUps = fEnq
+    .filter((e) => e.follow_up_date && isPast(parseISO(e.follow_up_date)) && !["converted_to_job", "lost"].includes(e.status))
     .slice(0, 5);
 
+  const myJobs = isTechnician
+    ? fJobs.filter((j) => j.assigned_technician === user?.email && ["scheduled", "dispatched", "in_progress"].includes(j.status))
+    : [];
+
+  // ── Technician view ──
+  if (isTechnician) {
+    return (
+      <div className="p-4 max-w-lg mx-auto">
+        <div className="mb-6">
+          <h1 className="text-xl font-bold">Good {getTimeOfDay()}, {user?.full_name?.split(" ")[0] || "there"}</h1>
+          <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, d MMMM yyyy")}</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <Card className="bg-primary text-primary-foreground border-0">
+            <CardContent className="p-4">
+              <p className="text-3xl font-bold">{todayJobs.length}</p>
+              <p className="text-sm opacity-80">Today's Jobs</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-3xl font-bold">{myJobs.length}</p>
+              <p className="text-sm text-muted-foreground">Active Jobs</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-4">
+          <FeedCard icon={CalendarDays} title="Today's Schedule" cta="View all" ctaTo="/MyJobs" empty="No jobs today">
+            {todayJobs.length > 0 && (
+              <div className="space-y-1">
+                {todayJobs.map((j) => (
+                  <FeedRow
+                    key={j.id}
+                    to={`/JobDetail?id=${j.id}`}
+                    primary={`${j.job_type?.replace(/_/g, " ")} — ${j.contact_name}`}
+                    secondary={`${j.scheduled_time_start || "TBC"} · ${j.site_address || "No address"}`}
+                    right={<StatusBadge status={j.status} />}
+                  />
+                ))}
+              </div>
+            )}
+          </FeedCard>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Admin / Manager view ──
   return (
     <div className="p-4 lg:p-6 max-w-7xl mx-auto">
-      <PageHeader
-        title="Dashboard"
-        subtitle="Operational overview"
-      >
-        <Link to="/Enquiries">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, d MMMM yyyy")}</p>
+        </div>
+        <Link to="/Enquiries?new=1">
           <Button size="sm">
-            <MessageSquarePlus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 mr-1.5" />
             New Enquiry
           </Button>
         </Link>
-      </PageHeader>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard
-          icon={MessageSquarePlus}
-          label="Active Enquiries"
-          value={activeEnquiries.length}
-          color="blue"
-          to="/Enquiries"
-        />
-        <StatCard
-          icon={Briefcase}
-          label="Active Jobs"
-          value={activeJobs.length}
-          color="amber"
-          to="/Jobs"
-        />
-        <StatCard
-          icon={FileText}
-          label="Pending Quotes"
-          value={pendingQuotes.length}
-          color="purple"
-          to="/Quotes"
-        />
-        <StatCard
-          icon={Receipt}
-          label="Unpaid Invoices"
-          value={unpaidInvoices.length}
-          color="green"
-          to="/Invoices"
-        />
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Today's Jobs */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              Today's Jobs
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {todayJobs.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">
-                No jobs scheduled for today
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {todayJobs.slice(0, 6).map((job) => (
-                  <Link
-                    key={job.id}
-                    to={`/JobDetail?id=${job.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {job.job_number || "Job"} — {job.contact_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {job.scheduled_time_start} · {job.site_address}
-                      </p>
-                    </div>
-                    <StatusBadge status={job.status} />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Stats row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <StatTile icon={Inbox} label="Active Leads" value={activeLeads.length} sub={newLeads.length > 0 ? `${newLeads.length} new` : undefined} to="/Enquiries" accent="blue" />
+        <StatTile icon={Briefcase} label="Active Jobs" value={activeJobs.length} sub={`${todayJobs.length} today`} to="/Jobs" accent="amber" />
+        <StatTile icon={FileText} label="Open Quotes" value={pendingQuotes.length} to="/Quotes" accent="purple" />
+        <StatTile icon={Receipt} label="Unpaid Invoices" value={unpaidInvoices.length} to="/Invoices" accent="emerald" />
+      </div>
 
-        {/* Follow-ups Due */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-muted-foreground" />
-              Follow-ups Due
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {followUps.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">
-                No overdue follow-ups
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {followUps.map((enq) => (
-                  <Link
-                    key={enq.id}
-                    to={`/EnquiryDetail?id=${enq.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {enq.contact_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {enq.service_type?.replace(/_/g, " ")} · Follow up{" "}
-                        {enq.follow_up_date}
-                      </p>
-                    </div>
-                    <StatusBadge status={enq.status} />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Two-column feed */}
+      <div className="grid lg:grid-cols-2 gap-4">
+        {/* Today's jobs */}
+        <FeedCard icon={CalendarDays} title="Today's Jobs" cta="View schedule" ctaTo="/Schedule" empty="No jobs scheduled today">
+          {todayJobs.length > 0 && (
+            <div className="space-y-0.5">
+              {todayJobs.slice(0, 6).map((j) => (
+                <FeedRow
+                  key={j.id}
+                  to={`/JobDetail?id=${j.id}`}
+                  primary={`${j.job_number || "Job"} — ${j.contact_name}`}
+                  secondary={`${j.scheduled_time_start || "TBC"} · ${j.site_suburb || j.site_address}`}
+                  right={<StatusBadge status={j.status} />}
+                />
+              ))}
+            </div>
+          )}
+        </FeedCard>
+
+        {/* Overdue follow-ups */}
+        <FeedCard icon={AlertTriangle} title="Overdue Follow-ups" cta="View leads" ctaTo="/Enquiries" empty="No overdue follow-ups">
+          {overdueFollowUps.length > 0 && (
+            <div className="space-y-0.5">
+              {overdueFollowUps.map((e) => (
+                <FeedRow
+                  key={e.id}
+                  to={`/EnquiryDetail?id=${e.id}`}
+                  primary={e.contact_name}
+                  secondary={`${e.service_type?.replace(/_/g, " ")} · Due ${e.follow_up_date}`}
+                  right={<StatusBadge status={e.status} />}
+                />
+              ))}
+            </div>
+          )}
+        </FeedCard>
       </div>
     </div>
   );
+}
+
+function getTimeOfDay() {
+  const h = new Date().getHours();
+  if (h < 12) return "morning";
+  if (h < 17) return "afternoon";
+  return "evening";
 }

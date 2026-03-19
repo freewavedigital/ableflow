@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Smartphone,
   Settings2,
+  BarChart2,
 } from "lucide-react";
 import BranchSelector from "./BranchSelector";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -168,6 +169,13 @@ export default function AppLayout() {
               {perms.canManageInvoices && (
                 <NavItem item={{ label: "Invoices", path: "/Invoices", icon: Receipt }} isActive={isActive("/Invoices")} onClick={close} />
               )}
+            </NavGroup>
+          )}
+
+          {/* Analytics — branch_manager+ */}
+          {!isTechnician && perms.canViewFinancials && (
+            <NavGroup label="Analytics">
+              <NavItem item={{ label: "Analytics", path: "/Analytics", icon: BarChart2 }} isActive={isActive("/Analytics")} onClick={close} />
             </NavGroup>
           )}
 

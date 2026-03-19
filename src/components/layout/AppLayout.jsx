@@ -16,7 +16,7 @@ import {
   Smartphone,
   Settings2,
   BarChart2,
-  FileText,
+  ClipboardCheck,
 } from "lucide-react";
 import BranchSelector from "./BranchSelector";
 import { usePermissions } from "@/hooks/usePermissions";

@@ -76,6 +76,8 @@ export default function FormBuilder() {
         agreement_body: t.agreement_body || "",
         submission_email_to: t.submission_email_to || "",
         success_message: t.success_message || "",
+        redirect_url: t.redirect_url || "",
+        spam_protection: !!t.spam_protection,
       });
       // Restore sections from stored sections array on the template
       if (t.sections && t.sections.length > 0) {

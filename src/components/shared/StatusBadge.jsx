@@ -16,14 +16,17 @@ const STATUS_CONFIG = {
   lost: { label: "Lost", color: "red" },
 
   // Job statuses
+  draft: { label: "Draft", color: "slate" },
   scheduled: { label: "Scheduled", color: "blue" },
   dispatched: { label: "Dispatched", color: "cyan" },
   in_progress: { label: "In Progress", color: "amber" },
-  on_hold: { label: "On Hold", color: "orange" },
+  awaiting_review: { label: "Awaiting Review", color: "purple" },
   completed: { label: "Completed", color: "green" },
-  requires_quote: { label: "Requires Quote", color: "purple" },
-  requires_follow_up: { label: "Follow Up", color: "amber" },
-  cancelled: { label: "Cancelled", color: "slate" },
+  follow_up_required: { label: "Follow-up Required", color: "amber" },
+  quote_required: { label: "Quote Required", color: "orange" },
+  invoiced: { label: "Invoiced", color: "emerald" },
+  closed: { label: "Closed", color: "slate" },
+  cancelled: { label: "Cancelled", color: "red" },
 
   // Quote statuses
   draft: { label: "Draft", color: "slate" },

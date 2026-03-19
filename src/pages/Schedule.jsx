@@ -153,8 +153,8 @@ export default function Schedule() {
         setFilterJobType={setFilterJobType}
       />
 
-      {/* Date navigator */}
-      <div className="flex items-center gap-2 mb-4">
+      {/* Date navigator — hidden in map view */}
+      <div className={`flex items-center gap-2 mb-4 ${view === "map" ? "hidden" : ""}`}>
         <Button variant="outline" size="icon" className="h-8 w-8" onClick={goBack}>
           <ChevronLeft className="w-4 h-4" />
         </Button>

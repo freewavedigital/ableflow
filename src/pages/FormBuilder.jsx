@@ -286,33 +286,96 @@ export default function FormBuilder() {
         <FormDetailsPanel meta={meta} onUpdate={setMeta} />
       </div>
 
+      {/* Tab selector */}
+      <div className="flex items-center gap-1 px-4 py-2 border-b border-border bg-muted/30 flex-shrink-0">
+        <button
+          onClick={() => setBuilderTab("fields")}
+          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            builderTab === "fields"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Fields & Logic
+        </button>
+        <button
+          onClick={() => {
+            setBuilderTab("actions");
+            if (templateId && actionTriggers.length === 0) {
+              // Pre-load triggers if not already loaded
+            }
+          }}
+          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            builderTab === "actions"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Actions ({actionTriggers.length})
+        </button>
+      </div>
+
       {/* Builder area */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        <FieldPalette onAdd={addFieldFromPalette} />
+        {builderTab === "fields" ? (
+          <>
+            <FieldPalette onAdd={addFieldFromPalette} />
 
-        <BuilderCanvas
-          sections={sections}
-          selectedFieldId={selectedField?.id}
-          onSelectField={setSelectedField}
-          onUpdateSection={updateSection}
-          onDeleteSection={deleteSection}
-          onAddSection={addSection}
-          onAddField={addField}
-          onDeleteField={deleteField}
-          onDuplicateField={duplicateField}
-          onDragEnd={handleDragEnd}
-          logicRules={logicRules}
-        />
+            <BuilderCanvas
+              sections={sections}
+              selectedFieldId={selectedField?.id}
+              onSelectField={setSelectedField}
+              onUpdateSection={updateSection}
+              onDeleteSection={deleteSection}
+              onAddSection={addSection}
+              onAddField={addField}
+              onDeleteField={deleteField}
+              onDuplicateField={duplicateField}
+              onDragEnd={handleDragEnd}
+              logicRules={logicRules}
+            />
 
-        <FieldConfig
-          field={selectedField}
-          onUpdate={updateField}
-          onClose={() => setSelectedField(null)}
-          logicRules={logicRules}
-          onUpdateLogicRules={setLogicRules}
-          allFields={allFields}
-          sections={sections}
-        />
+            <FieldConfig
+              field={selectedField}
+              onUpdate={updateField}
+              onClose={() => setSelectedField(null)}
+              logicRules={logicRules}
+              onUpdateLogicRules={setLogicRules}
+              allFields={allFields}
+              sections={sections}
+            />
+          </>
+        ) : (
+          <div className="flex-1 overflow-auto p-6">
+            <div className="max-w-3xl mx-auto space-y-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="font-semibold text-foreground">Form Actions & Automation</h2>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Configure what happens when forms are submitted, signed, or reviewed
+                  </p>
+                </div>
+                {templateId && (
+                  <Button size="sm" onClick={saveTriggers} className="gap-1">
+                    <Save className="w-4 h-4" />
+                    Save Actions
+                  </Button>
+                )}
+              </div>
+              {templateId ? (
+                <ActionTriggersPanel
+                  templateId={templateId}
+                  triggers={actionTriggers}
+                  onUpdate={setActionTriggers}
+                />
+              ) : (
+                <div className="bg-muted/30 border border-border rounded-lg p-4 text-center text-sm text-muted-foreground">
+                  Save your form first to add actions
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

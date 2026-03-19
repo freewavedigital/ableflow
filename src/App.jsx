@@ -24,6 +24,7 @@ import Quotes from "@/pages/Quotes";
 import Invoices from "@/pages/Invoices";
 import Tasks from "@/pages/Tasks";
 import MyJobs from "@/pages/MyJobs";
+import TechJobDetail from "@/pages/TechJobDetail";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -63,6 +64,7 @@ const AuthenticatedApp = () => {
           <Route path="/Invoices" element={<Invoices />} />
           <Route path="/Tasks" element={<Tasks />} />
           <Route path="/MyJobs" element={<MyJobs />} />
+          <Route path="/TechJobDetail" element={<TechJobDetail />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

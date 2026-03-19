@@ -10,25 +10,37 @@ import {
   Receipt,
   Menu,
   X,
-  ChevronDown,
   Droplets,
+  Settings,
+  ClipboardList,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import BranchSelector from "./BranchSelector";
+import { usePermissions } from "@/hooks/usePermissions";
+import { useAuth } from "@/lib/AuthContext";
 
-const navItems = [
-  { label: "Dashboard", path: "/Dashboard", icon: LayoutDashboard },
-  { label: "Enquiries", path: "/Enquiries", icon: MessageSquarePlus },
-  { label: "Schedule", path: "/Schedule", icon: CalendarDays },
-  { label: "Jobs", path: "/Jobs", icon: Briefcase },
-  { label: "Clients", path: "/Clients", icon: Users },
-  { label: "Quotes", path: "/Quotes", icon: FileText },
-  { label: "Invoices", path: "/Invoices", icon: Receipt },
-];
+const ROLE_LABELS = {
+  head_office: "Head Office",
+  branch_manager: "Branch Manager",
+  admin: "Admin",
+  technician: "Technician",
+};
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const perms = usePermissions();
+  const { user } = useAuth();
+
+  const navItems = [
+    { label: "Dashboard", path: "/Dashboard", icon: LayoutDashboard, show: true },
+    { label: "Enquiries", path: "/Enquiries", icon: MessageSquarePlus, show: perms.canViewLeads },
+    { label: "Schedule", path: "/Schedule", icon: CalendarDays, show: perms.canViewSchedule },
+    { label: "Jobs", path: "/Jobs", icon: Briefcase, show: perms.canViewJobs },
+    { label: "Clients", path: "/Clients", icon: Users, show: perms.canManageClients },
+    { label: "Quotes", path: "/Quotes", icon: FileText, show: perms.canManageQuotes },
+    { label: "Invoices", path: "/Invoices", icon: Receipt, show: perms.canManageInvoices },
+    { label: "Tasks", path: "/Tasks", icon: ClipboardList, show: perms.canViewTasks },
+  ].filter((i) => i.show);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">

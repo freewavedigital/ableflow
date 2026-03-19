@@ -29,6 +29,7 @@ import JobTemplates from "@/pages/JobTemplates";
 import Analytics from "@/pages/Analytics";
 import Forms from "@/pages/Forms";
 import FormBuilder from "@/pages/FormBuilder";
+import PublicForm from "@/pages/PublicForm";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

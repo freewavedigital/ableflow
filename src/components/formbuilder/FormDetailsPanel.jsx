@@ -113,6 +113,12 @@ export default function FormDetailsPanel({ meta, onUpdate }) {
             <Label className="text-xs">Publicly accessible</Label>
           </div>
         )}
+        {meta.form_type === "website" && (
+          <div className="flex items-center gap-2">
+            <Switch checked={!!meta.spam_protection} onCheckedChange={(v) => set("spam_protection", v)} />
+            <Label className="text-xs">Spam protection</Label>
+          </div>
+        )}
         {meta.form_type === "agreement" && (
           <div className="flex items-center gap-2">
             <Switch checked={!!meta.requires_signature} onCheckedChange={(v) => set("requires_signature", v)} />

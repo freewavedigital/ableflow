@@ -84,7 +84,7 @@ function FieldWidget({ field }) {
   );
 }
 
-export default function FieldPreview({ field, isSelected, onSelect, onDelete, onDuplicate, dragHandleProps }) {
+export default function FieldPreview({ field, isSelected, onSelect, onDelete, onDuplicate, dragHandleProps, hasLogic }) {
   const def = FIELD_TYPES.find((f) => f.type === field.type);
 
   return (

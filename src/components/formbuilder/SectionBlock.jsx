@@ -97,6 +97,11 @@ export default function SectionBlock({
                         onDelete={() => onDeleteField(section.id, field.id)}
                         onDuplicate={() => onDuplicateField(section.id, field)}
                         dragHandleProps={dragProvided.dragHandleProps}
+                        hasLogic={(logicRules || []).some(
+                          (r) =>
+                            r.target_field_key === field.field_key ||
+                            (r.conditions || []).some((c) => c.trigger_field_key === field.field_key)
+                        )}
                       />
                     </div>
                   )}

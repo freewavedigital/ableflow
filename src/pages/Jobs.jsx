@@ -85,12 +85,16 @@ export default function Jobs() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
             <SelectItem value="scheduled">Scheduled</SelectItem>
             <SelectItem value="dispatched">Dispatched</SelectItem>
             <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="awaiting_review">Awaiting Review</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="on_hold">On Hold</SelectItem>
-            <SelectItem value="requires_quote">Requires Quote</SelectItem>
+            <SelectItem value="follow_up_required">Follow-up Required</SelectItem>
+            <SelectItem value="quote_required">Quote Required</SelectItem>
+            <SelectItem value="invoiced">Invoiced</SelectItem>
+            <SelectItem value="closed">Closed</SelectItem>
             <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>

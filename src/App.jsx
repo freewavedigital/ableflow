@@ -6,6 +6,7 @@ import PageNotFound from "./lib/PageNotFound";
 import { AuthProvider, useAuth } from "@/lib/AuthContext";
 import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import { BranchProvider } from "@/hooks/useBranch";
+import OfflineIndicator from "@/components/OfflineIndicator";
 
 // Layout
 import AppLayout from "@/components/layout/AppLayout";
@@ -97,6 +98,7 @@ function App() {
           </Routes>
         </Router>
         <Toaster />
+        <OfflineIndicator />
       </QueryClientProvider>
     </AuthProvider>
   );

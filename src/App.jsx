@@ -31,6 +31,7 @@ import Forms from "@/pages/Forms";
 import FormBuilder from "@/pages/FormBuilder";
 import PublicForm from "@/pages/PublicForm";
 import AgreementSign from "@/pages/AgreementSign";
+import FormSubmissions from "@/pages/FormSubmissions";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -75,6 +76,7 @@ const AuthenticatedApp = () => {
           <Route path="/Analytics" element={<Analytics />} />
           <Route path="/Forms" element={<Forms />} />
           <Route path="/FormBuilder" element={<FormBuilder />} />
+          <Route path="/FormSubmissions" element={<FormSubmissions />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

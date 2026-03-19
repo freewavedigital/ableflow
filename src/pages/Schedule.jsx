@@ -170,30 +170,38 @@ export default function Schedule() {
         )}
       </div>
 
-      <div className="flex gap-5 items-start">
-        {/* Main calendar view */}
-        <div className="flex-1 min-w-0">
-          {view === "week" ? (
-            <WeekView
-              weekStart={weekStart}
-              jobs={filteredJobs}
-              technicians={technicians}
-              onDrop={handleDrop}
-            />
-          ) : (
-            <DayView
-              selectedDay={currentDate}
-              jobs={filteredJobs}
-              technicians={technicians}
-            />
-          )}
-        </div>
+      {view === "map" ? (
+        <MapView
+          jobs={filteredJobs}
+          technicians={technicians}
+          selectedDate={currentDate}
+        />
+      ) : (
+        <div className="flex gap-5 items-start">
+          {/* Main calendar view */}
+          <div className="flex-1 min-w-0">
+            {view === "week" ? (
+              <WeekView
+                weekStart={weekStart}
+                jobs={filteredJobs}
+                technicians={technicians}
+                onDrop={handleDrop}
+              />
+            ) : (
+              <DayView
+                selectedDay={currentDate}
+                jobs={filteredJobs}
+                technicians={technicians}
+              />
+            )}
+          </div>
 
-        {/* Unassigned sidebar */}
-        <div className="w-64 flex-shrink-0">
-          <UnassignedPanel jobs={unassignedJobs} onJobClick={setRescheduleJob} />
+          {/* Unassigned sidebar */}
+          <div className="w-64 flex-shrink-0">
+            <UnassignedPanel jobs={unassignedJobs} onJobClick={setRescheduleJob} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Global reschedule dialog (from unassigned panel) */}
       {rescheduleJob && (

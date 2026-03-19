@@ -66,6 +66,7 @@ const AuthenticatedApp = () => {
           <Route path="/Tasks" element={<Tasks />} />
           <Route path="/MyJobs" element={<MyJobs />} />
           <Route path="/TechJobDetail" element={<TechJobDetail />} />
+          <Route path="/JobTemplates" element={<JobTemplates />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

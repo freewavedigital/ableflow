@@ -14,6 +14,7 @@ import JobMediaPanel from "@/components/jobs/JobMediaPanel";
 import JobActivityFeed from "@/components/jobs/JobActivityFeed";
 import { usePermissions } from "@/hooks/usePermissions";
 import { format } from "date-fns";
+import AgreementPanel from "@/components/shared/AgreementPanel";
 
 export default function JobDetail() {
   const params = new URLSearchParams(window.location.search);
@@ -130,6 +131,22 @@ export default function JobDetail() {
 
         {/* ── Sidebar ── */}
         <div className="space-y-4">
+
+          {/* Agreement */}
+          {canEdit && (
+            <AgreementPanel
+              entityType="job"
+              entityId={id}
+              context={{
+                clientName: job.contact_name,
+                siteAddress: [job.site_address, job.site_suburb].filter(Boolean).join(", "),
+                serviceType: job.job_type,
+                branchId: job.branch_id,
+                clientId: job.client_id,
+                siteId: job.site_id,
+              }}
+            />
+          )}
 
           {/* Schedule — editable for admin+, read-only for technician */}
           <JobScheduleCard

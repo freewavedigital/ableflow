@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Plus, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,8 @@ import FormsContainer from "@/components/forms/FormsContainer";
 
 export default function Forms() {
   const [showNew, setShowNew] = useState(false);
-  
-  const params = new URLSearchParams(window.location.search);
-  const typeFilter = params.get("type");
-  const tabFilter = params.get("tab");
+  const [activeTab, setActiveTab] = useState("website");
+  const [searchParams] = useSearchParams();
 
   const { data: templates = [], refetch } = useQuery({
     queryKey: ["form-templates"],
@@ -28,6 +27,19 @@ export default function Forms() {
     queryFn: () => base44.entities.FormSubmissionRecord.list("-submitted_date", 500),
   });
 
+  // Sync activeTab with URL params
+  useEffect(() => {
+    const type = searchParams.get("type");
+    const tab = searchParams.get("tab");
+    
+    if (type === "job") setActiveTab("job");
+    else if (type === "agreement") setActiveTab("agreement");
+    else if (tab === "templates") setActiveTab("templates");
+    else if (tab === "notifications") setActiveTab("notifications");
+    else if (tab === "embed") setActiveTab("embed");
+    else setActiveTab("website");
+  }, [searchParams]);
+
   // Filter templates by type
   const websiteTemplates = templates.filter((t) => t.form_type === "website" || t.form_type === "enquiry");
   const jobTemplates = templates.filter((t) => t.form_type === "job");
@@ -36,14 +48,6 @@ export default function Forms() {
   const websiteSubs = submissions.filter((s) => s.form_type === "website" || s.form_type === "enquiry");
   const jobSubs = submissions.filter((s) => s.form_type === "job");
   const agreementSubs = submissions.filter((s) => s.form_type === "agreement");
-
-  // Determine active tab based on URL params
-  let activeTab = "website";
-  if (typeFilter === "job") activeTab = "job";
-  else if (typeFilter === "agreement") activeTab = "agreement";
-  else if (tabFilter === "templates") activeTab = "templates";
-  else if (tabFilter === "notifications") activeTab = "notifications";
-  else if (tabFilter === "embed") activeTab = "embed";
 
   const onCreated = () => { refetch(); setShowNew(false); };
 

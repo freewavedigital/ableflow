@@ -1,7 +1,7 @@
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, LayoutGrid } from "lucide-react";
+import { CalendarDays, LayoutGrid, Map } from "lucide-react";
 
 const JOB_TYPES = [
   { value: "all", label: "All Job Types" },
@@ -40,6 +40,12 @@ export default function ScheduleFilters({
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${view === "day" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"}`}
         >
           <CalendarDays className="w-3.5 h-3.5" /> Day
+        </button>
+        <button
+          onClick={() => setView("map")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${view === "map" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"}`}
+        >
+          <Map className="w-3.5 h-3.5" /> Map
         </button>
       </div>
 

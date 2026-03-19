@@ -100,6 +100,37 @@ export default function FormDetailsPanel({ meta, onUpdate }) {
             placeholder="Internal description of this form"
           />
         </div>
+
+        {meta.form_type === "website" && (
+          <>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Notification Email</Label>
+              <Input
+                type="email"
+                value={meta.submission_email_to || ""}
+                onChange={(e) => set("submission_email_to", e.target.value)}
+                placeholder="office@example.com"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Redirect URL after submit <span className="text-muted-foreground">(optional)</span></Label>
+              <Input
+                type="url"
+                value={meta.redirect_url || ""}
+                onChange={(e) => set("redirect_url", e.target.value)}
+                placeholder="https://yoursite.com/thank-you"
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label className="text-xs">Success Message <span className="text-muted-foreground">(shown if no redirect)</span></Label>
+              <Input
+                value={meta.success_message || ""}
+                onChange={(e) => set("success_message", e.target.value)}
+                placeholder="Thank you! We'll be in touch shortly."
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-6 pt-1 border-t border-border">

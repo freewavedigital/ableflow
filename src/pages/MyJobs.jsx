@@ -26,30 +26,43 @@ function dayLabel(dateStr) {
 }
 
 function JobCard({ job }) {
-  const isPastJob = job.scheduled_date && isPast(parseISO(job.scheduled_date)) && !isToday(parseISO(job.scheduled_date));
+  const isInProgress = job.status === "in_progress";
+  const isDispatched = job.status === "dispatched";
 
   return (
     <Link
-      to={`/JobDetail?id=${job.id}`}
-      className="block bg-card border border-border rounded-xl p-4 hover:border-primary/40 hover:shadow-sm transition-all active:scale-[0.99]"
+      to={`/TechJobDetail?id=${job.id}`}
+      className={`block rounded-2xl p-4 transition-all active:scale-[0.99] ${
+        isInProgress
+          ? "bg-amber-50 border-2 border-amber-400 shadow-md"
+          : "bg-card border border-border hover:border-primary/40 hover:shadow-sm"
+      }`}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">
+          <p className={`font-bold truncate ${isInProgress ? "text-amber-900 text-base" : "text-sm"}`}>
             {job.contact_name || "No contact"}
           </p>
-          <p className="text-xs text-muted-foreground capitalize">
-            {job.job_type?.replace(/_/g, " ")} · {job.job_number || ""}
+          <p className={`text-xs capitalize mt-0.5 ${isInProgress ? "text-amber-700" : "text-muted-foreground"}`}>
+            {job.job_type?.replace(/_/g, " ")}
+            {job.job_number && ` · ${job.job_number}`}
           </p>
         </div>
-        <StatusBadge status={job.status} />
+        {isInProgress ? (
+          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500 text-white text-xs font-bold rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            In Progress
+          </span>
+        ) : (
+          <StatusBadge status={job.status} />
+        )}
       </div>
 
       <div className="space-y-1.5">
         {job.site_address && (
           <div className="flex items-center gap-2 text-sm">
-            <MapPin className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-            <span className="truncate text-muted-foreground">
+            <MapPin className={`w-3.5 h-3.5 flex-shrink-0 ${isInProgress ? "text-amber-600" : "text-muted-foreground"}`} />
+            <span className={`truncate ${isInProgress ? "text-amber-800" : "text-muted-foreground"}`}>
               {job.site_address}
               {job.site_suburb && `, ${job.site_suburb}`}
             </span>
@@ -57,23 +70,27 @@ function JobCard({ job }) {
         )}
         {job.scheduled_time_start && (
           <div className="flex items-center gap-2 text-sm">
-            <Clock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-            <span className="text-muted-foreground">
+            <Clock className={`w-3.5 h-3.5 flex-shrink-0 ${isInProgress ? "text-amber-600" : "text-muted-foreground"}`} />
+            <span className={isInProgress ? "text-amber-800 font-medium" : "text-muted-foreground"}>
               {job.scheduled_time_start}
-              {job.scheduled_time_end && ` — ${job.scheduled_time_end}`}
+              {job.scheduled_time_end && ` – ${job.scheduled_time_end}`}
             </span>
           </div>
         )}
       </div>
 
       {job.technician_notes && (
-        <div className="mt-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-          <span className="font-semibold">Note: </span>{job.technician_notes}
+        <div className="mt-3 p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800">
+          <span className="font-semibold">Instructions: </span>{job.technician_notes}
         </div>
       )}
 
-      <div className="flex items-center justify-end mt-3 text-xs text-primary font-medium gap-1">
-        Open job <ChevronRight className="w-3.5 h-3.5" />
+      <div className={`flex items-center justify-end mt-3 text-xs font-semibold gap-1 ${isInProgress ? "text-amber-700" : "text-primary"}`}>
+        {isInProgress ? (
+          <><PlayCircle className="w-4 h-4" /> Continue Job</>
+        ) : (
+          <>Open <ChevronRight className="w-3.5 h-3.5" /></>
+        )}
       </div>
     </Link>
   );

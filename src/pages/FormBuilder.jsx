@@ -52,6 +52,8 @@ export default function FormBuilder() {
   const [sections, setSections] = useState([makeSection("Section 1")]);
   const [selectedField, setSelectedField] = useState(null);
   const [logicRules, setLogicRules] = useState([]);
+  const [actionTriggers, setActionTriggers] = useState([]);
+  const [builderTab, setBuilderTab] = useState("fields"); // fields | actions
 
   // Load existing template
   const { data: existing, isLoading } = useQuery({

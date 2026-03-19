@@ -7,6 +7,8 @@ import { AuthProvider, useAuth } from "@/lib/AuthContext";
 import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import { BranchProvider } from "@/hooks/useBranch";
 import OfflineIndicator from "@/components/OfflineIndicator";
+import { useEffect } from "react";
+import { workerManager } from "@/lib/transcriptionWorkerManager";
 
 // Layout
 import AppLayout from "@/components/layout/AppLayout";
@@ -88,6 +90,10 @@ const AuthenticatedApp = () => {
 };
 
 function App() {
+  useEffect(() => {
+    workerManager.initialize();
+  }, []);
+
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>

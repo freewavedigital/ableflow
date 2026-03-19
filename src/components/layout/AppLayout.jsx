@@ -107,9 +107,16 @@ export default function AppLayout() {
             })}
           </nav>
 
-          {/* Footer */}
-          <div className="px-4 py-3 border-t border-sidebar-border text-xs text-sidebar-foreground/40">
-            ALD Ops v1.0
+          {/* User / Role indicator */}
+          <div className="px-4 py-3 border-t border-sidebar-border">
+            <div className="text-xs text-sidebar-foreground/60 truncate">{user?.full_name || user?.email}</div>
+            <div className="text-xs text-sidebar-primary font-medium mt-0.5">
+              {ROLE_LABELS[user?.role] || "Technician"}
+              {user?.branch_id && !perms.isHeadOffice && (
+                <span className="text-sidebar-foreground/40 font-normal ml-1">· Branch</span>
+              )}
+            </div>
+            <div className="text-xs text-sidebar-foreground/30 mt-1">ALD Ops v1.0</div>
           </div>
         </div>
       </aside>

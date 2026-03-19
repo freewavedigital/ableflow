@@ -16,6 +16,7 @@ import WeekView from "@/components/schedule/WeekView";
 import DayView from "@/components/schedule/DayView";
 import UnassignedPanel from "@/components/schedule/UnassignedPanel";
 import RescheduleDialog from "@/components/schedule/RescheduleDialog";
+import MapView from "@/components/schedule/MapView";
 
 export default function Schedule() {
   const queryClient = useQueryClient();

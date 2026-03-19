@@ -11,6 +11,7 @@ import {
   CalendarDays,
   Wrench,
   CheckCircle2,
+  PlayCircle,
 } from "lucide-react";
 import StatusBadge from "@/components/shared/StatusBadge";
 

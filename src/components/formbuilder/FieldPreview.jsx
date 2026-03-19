@@ -106,6 +106,12 @@ export default function FieldPreview({ field, isSelected, onSelect, onDelete, on
       {/* Field preview */}
       <div className="flex-1 min-w-0">
         <FieldWidget field={field} />
+        {hasLogic && (
+          <div className="mt-1 flex items-center gap-1">
+            <GitBranch className="w-3 h-3 text-primary" />
+            <span className="text-[10px] text-primary font-medium">Has logic</span>
+          </div>
+        )}
       </div>
 
       {/* Actions — show on hover or selected */}

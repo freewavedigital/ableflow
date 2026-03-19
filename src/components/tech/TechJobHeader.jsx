@@ -1,12 +1,13 @@
 import React from "react";
-import { MapPin, Clock, Phone, User, Wrench, FileText } from "lucide-react";
+import { MapPin, Clock, Phone, FileText, Timer } from "lucide-react";
+import { format } from "date-fns";
 
 const STATUS_CONFIG = {
-  scheduled:   { label: "Scheduled",    bg: "bg-blue-100",   text: "text-blue-800",   dot: "bg-blue-500" },
-  dispatched:  { label: "Dispatched",   bg: "bg-cyan-100",   text: "text-cyan-800",   dot: "bg-cyan-500" },
-  in_progress: { label: "In Progress",  bg: "bg-amber-100",  text: "text-amber-800",  dot: "bg-amber-500" },
-  awaiting_review: { label: "Awaiting Review", bg: "bg-purple-100", text: "text-purple-800", dot: "bg-purple-500" },
-  completed:   { label: "Completed",    bg: "bg-green-100",  text: "text-green-800",  dot: "bg-green-500" },
+  scheduled:       { label: "Scheduled",        bg: "bg-blue-100",   text: "text-blue-800",   dot: "bg-blue-500" },
+  dispatched:      { label: "Dispatched",        bg: "bg-cyan-100",   text: "text-cyan-800",   dot: "bg-cyan-500" },
+  in_progress:     { label: "In Progress",       bg: "bg-amber-100",  text: "text-amber-800",  dot: "bg-amber-500" },
+  awaiting_review: { label: "Awaiting Review",   bg: "bg-purple-100", text: "text-purple-800", dot: "bg-purple-500" },
+  completed:       { label: "Completed",         bg: "bg-green-100",  text: "text-green-800",  dot: "bg-green-500" },
 };
 
 export default function TechJobHeader({ job }) {
@@ -16,12 +17,19 @@ export default function TechJobHeader({ job }) {
     ? `https://maps.google.com/?q=${encodeURIComponent([job.site_address, job.site_suburb].filter(Boolean).join(", "))}`
     : null;
 
+  const arrivalFormatted = job.arrival_time
+    ? format(new Date(job.arrival_time), "h:mm a")
+    : null;
+  const departureFormatted = job.departure_time
+    ? format(new Date(job.departure_time), "h:mm a")
+    : null;
+
   return (
     <div className="space-y-4">
-      {/* Status pill */}
+      {/* Status + job number */}
       <div className="flex items-center justify-between">
         <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold ${s.bg} ${s.text}`}>
-          <span className={`w-2 h-2 rounded-full ${s.dot}`} />
+          <span className={`w-2 h-2 rounded-full ${s.dot} ${job.status === "in_progress" ? "animate-pulse" : ""}`} />
           {s.label}
         </span>
         <span className="text-xs text-muted-foreground font-mono">{job.job_number || ""}</span>
@@ -37,7 +45,7 @@ export default function TechJobHeader({ job }) {
         </p>
       </div>
 
-      {/* Time */}
+      {/* Scheduled time */}
       {job.scheduled_time_start && (
         <div className="flex items-center gap-2 text-sm text-foreground">
           <Clock className="w-4 h-4 text-muted-foreground" />
@@ -51,7 +59,22 @@ export default function TechJobHeader({ job }) {
         </div>
       )}
 
-      {/* Address + Map */}
+      {/* Clock in / out record */}
+      {(arrivalFormatted || departureFormatted) && (
+        <div className="flex items-center gap-4 px-3 py-2.5 bg-muted rounded-xl text-sm">
+          <Timer className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+          <div className="flex gap-4">
+            {arrivalFormatted && (
+              <span><span className="text-muted-foreground text-xs">Clocked in</span> <span className="font-semibold">{arrivalFormatted}</span></span>
+            )}
+            {departureFormatted && (
+              <span><span className="text-muted-foreground text-xs">Clocked out</span> <span className="font-semibold">{departureFormatted}</span></span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Address + Navigate button */}
       {job.site_address && (
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-2 text-sm">
@@ -75,7 +98,7 @@ export default function TechJobHeader({ job }) {
         </div>
       )}
 
-      {/* Contact */}
+      {/* Contact phone */}
       {job.contact_phone && (
         <a
           href={`tel:${job.contact_phone}`}
@@ -97,7 +120,7 @@ export default function TechJobHeader({ job }) {
         </div>
       )}
 
-      {/* Technician instructions */}
+      {/* Tech instructions */}
       {job.technician_notes && (
         <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-900">
           <FileText className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />

@@ -1,5 +1,5 @@
 import React from "react";
-import { GripVertical, Trash2, Copy, Settings2 } from "lucide-react";
+import { GripVertical, Trash2, Copy, Settings2, GitBranch } from "lucide-react";
 import { FIELD_TYPES } from "./FieldPalette";
 
 function FieldWidget({ field }) {

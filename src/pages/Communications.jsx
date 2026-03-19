@@ -9,6 +9,8 @@ import { format } from "date-fns";
 import PageHeader from "@/components/shared/PageHeader";
 import CommunicationTimeline from "@/components/communications/CommunicationTimeline";
 import CommunicationStats from "@/components/communications/CommunicationStats";
+import CallLogger from "@/components/communications/CallLogger";
+import CallDetailView from "@/components/communications/CallDetailView";
 
 const CHANNEL_ICONS = {
   phone: Phone,
@@ -21,21 +23,28 @@ export default function Communications() {
   const [filterEntity, setFilterEntity] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("recent");
+  const [showCallLogger, setShowCallLogger] = useState(false);
+  const [selectedCall, setSelectedCall] = useState(null);
 
   // Fetch all communication records
-  const { data: phoneCalls = [], isLoading: loadingCalls } = useQuery({
-    queryKey: ["phone-calls"],
-    queryFn: () => base44.entities.PhoneCall.list("-started_at", 100),
+  const { data: commRecords = [], isLoading: loadingComm } = useQuery({
+    queryKey: ["communications"],
+    queryFn: () => base44.entities.CommunicationRecord.list("-timestamp", 100),
+  });
+
+  const { data: callRecords = [], isLoading: loadingCalls } = useQuery({
+    queryKey: ["call-records"],
+    queryFn: () => base44.entities.CallRecord.list("-started_at", 100),
   });
 
   const { data: smsMessages = [], isLoading: loadingSMS } = useQuery({
     queryKey: ["sms-messages"],
-    queryFn: () => base44.entities.SMSMessage.list("-sent_at", 100),
+    queryFn: () => base44.entities.SMSRecord.list("-sent_at", 100),
   });
 
   const { data: emailMessages = [], isLoading: loadingEmails } = useQuery({
     queryKey: ["email-messages"],
-    queryFn: () => base44.entities.EmailMessage.list("-sent_at", 100),
+    queryFn: () => base44.entities.EmailRecord.list("-sent_at", 100),
   });
 
   // Fetch related records for context
@@ -56,26 +65,44 @@ export default function Communications() {
 
   // Normalize all communications into a unified format
   const allCommunications = useMemo(() => {
-    const comms = [
-      ...phoneCalls.map((call) => ({
+    // Build call details from records
+    const callDetails = callRecords.map((call) => {
+      const comm = commRecords.find((c) => c.id === call.communication_record_id);
+      return {
         ...call,
+        ...comm,
         channel: "phone",
         timestamp: call.started_at,
         contact: call.phone_number,
-      })),
-      ...smsMessages.map((msg) => ({
+        commRecord: comm,
+      };
+    });
+
+    const smsDetails = smsMessages.map((msg) => {
+      const comm = commRecords.find((c) => c.id === msg.communication_record_id);
+      return {
         ...msg,
+        ...comm,
         channel: "sms",
         timestamp: msg.sent_at,
         contact: msg.phone_number,
-      })),
-      ...emailMessages.map((msg) => ({
+        commRecord: comm,
+      };
+    });
+
+    const emailDetails = emailMessages.map((msg) => {
+      const comm = commRecords.find((c) => c.id === msg.communication_record_id);
+      return {
         ...msg,
+        ...comm,
         channel: "email",
         timestamp: msg.sent_at,
         contact: msg.recipient_email,
-      })),
-    ];
+        commRecord: comm,
+      };
+    });
+
+    const comms = [...callDetails, ...smsDetails, ...emailDetails];
 
     // Apply filters
     let filtered = comms;
@@ -108,9 +135,9 @@ export default function Communications() {
     }
 
     return filtered;
-  }, [phoneCalls, smsMessages, emailMessages, filterChannel, filterEntity, searchQuery, sortBy]);
+  }, [callRecords, commRecords, smsMessages, emailMessages, filterChannel, filterEntity, searchQuery, sortBy]);
 
-  const isLoading = loadingCalls || loadingSMS || loadingEmails;
+  const isLoading = loadingComm || loadingCalls || loadingSMS || loadingEmails;
 
   const getEntityLabel = (comm) => {
     if (comm.entity_type === "lead") {
@@ -142,8 +169,8 @@ export default function Communications() {
         title="Communications Hub"
         subtitle="Track all calls, SMS, and emails across leads, jobs, and clients"
       >
-        <Button size="sm" className="gap-1">
-          <Plus className="w-4 h-4" /> Log Communication
+        <Button size="sm" className="gap-1" onClick={() => setShowCallLogger(true)}>
+          <Plus className="w-4 h-4" /> Log Call
         </Button>
       </PageHeader>
 
@@ -304,6 +331,16 @@ export default function Communications() {
                           </div>
                         )}
                       </div>
+                      {comm.channel === "phone" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="mt-3"
+                          onClick={() => setSelectedCall(comm)}
+                        >
+                          View Details
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -312,6 +349,27 @@ export default function Communications() {
           </div>
         )}
       </div>
+
+      {/* Dialogs */}
+      <CallLogger open={showCallLogger} onOpenChange={setShowCallLogger} />
+
+      {selectedCall && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-end">
+          <div className="w-full sm:w-96 bg-background rounded-t-xl sm:rounded-xl shadow-lg sm:mr-6 h-[80vh] sm:h-[90vh] flex flex-col">
+            <CallDetailView
+              callRecord={selectedCall}
+              commRecord={selectedCall.commRecord}
+              onClose={() => setSelectedCall(null)}
+            />
+            <button
+              onClick={() => setSelectedCall(null)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

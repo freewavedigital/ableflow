@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +10,7 @@ import WebsiteFormsTab from "@/components/forms/WebsiteFormsTab.jsx";
 import JobFormsTab from "@/components/forms/JobFormsTab";
 import AgreementFormsTab from "@/components/forms/AgreementFormsTab";
 import NewFormTemplateDialog from "@/components/forms/NewFormTemplateDialog";
+import FormsContainer from "@/components/forms/FormsContainer";
 
 export default function Forms() {
   const [tab, setTab] = useState("website");

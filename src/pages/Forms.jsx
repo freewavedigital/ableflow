@@ -3,8 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
-import { Globe, Briefcase, FileSignature, Plus } from "lucide-react";
+import { Globe, Briefcase, FileSignature, Plus, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import WebsiteFormsTab from "@/components/forms/WebsiteFormsTab.jsx";
 import JobFormsTab from "@/components/forms/JobFormsTab";
 import AgreementFormsTab from "@/components/forms/AgreementFormsTab";
@@ -41,9 +42,16 @@ export default function Forms() {
         title="Forms"
         subtitle="Manage website lead forms, job inspection forms, and agreement templates"
       >
-        <Button size="sm" onClick={() => setShowNew(true)}>
-          <Plus className="w-4 h-4 mr-1" /> New Template
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" asChild>
+            <Link to={`/FormBuilder?type=${tab}`}>
+              <PenLine className="w-4 h-4 mr-1" /> Build Form
+            </Link>
+          </Button>
+          <Button size="sm" onClick={() => setShowNew(true)}>
+            <Plus className="w-4 h-4 mr-1" /> Quick Create
+          </Button>
+        </div>
       </PageHeader>
 
       <Tabs value={tab} onValueChange={setTab}>

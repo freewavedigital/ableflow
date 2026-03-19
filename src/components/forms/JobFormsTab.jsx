@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Briefcase, Eye, Link2, Archive, CheckCircle, FileEdit } from "lucide-react";
+import { Briefcase, Eye, Link2, Archive, CheckCircle, FileEdit, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
@@ -83,6 +83,11 @@ export default function JobFormsTab({ templates, submissions, onRefresh }) {
                 </div>
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0">
+                <Button size="sm" variant="outline" asChild>
+                  <Link to={`/FormBuilder?id=${t.id}`}>
+                    <Pencil className="w-3.5 h-3.5 mr-1" /> Edit
+                  </Link>
+                </Button>
                 {subs.length > 0 && (
                   <Button size="sm" variant="outline" onClick={() => setViewingSubs({ template: t, subs })}>
                     <Eye className="w-3.5 h-3.5 mr-1" /> View

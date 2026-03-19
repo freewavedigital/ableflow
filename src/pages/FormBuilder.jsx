@@ -110,8 +110,14 @@ export default function FormBuilder() {
     },
   });
 
+  // Flat list of all fields across all sections for logic rule editor
+  const allFields = sections.flatMap((s) =>
+    s.fields.map((f) => ({ ...f, section_id: s.id }))
+  );
+
   const buildPayload = () => ({
     ...meta,
+    logic_rules: logicRules,
     sections: sections.map((s, si) => ({
       section_id: s.id,
       title: s.title,

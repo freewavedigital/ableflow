@@ -210,6 +210,13 @@ export default function JobDetail() {
             </Card>
           )}
 
+          {/* Tasks & Reminders */}
+          <TasksSidebar
+            entityType="job"
+            entityId={id}
+            entityLabel={`${job.job_number || "Job"} — ${job.contact_name || ""}`}
+          />
+
           {/* Details */}
           <Card>
             <CardHeader className="pb-3">

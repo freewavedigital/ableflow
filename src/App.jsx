@@ -25,6 +25,7 @@ import Invoices from "@/pages/Invoices";
 import Tasks from "@/pages/Tasks";
 import MyJobs from "@/pages/MyJobs";
 import TechJobDetail from "@/pages/TechJobDetail";
+import JobTemplates from "@/pages/JobTemplates";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

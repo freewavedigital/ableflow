@@ -1,20 +1,45 @@
 import React, { useState } from "react";
-import { Phone, Edit2, Link2, Trash2, Plus } from "lucide-react";
+import { Phone, Edit2, Link2, Trash2, Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import CallLinkPanel from "./CallLinkPanel";
 import CallNoteEditor from "./CallNoteEditor";
+import CallAudioUpload from "./CallAudioUpload";
+import CallAudioPlayer from "./CallAudioPlayer";
+import CallTranscriptViewer from "./CallTranscriptViewer";
 
 export default function CallDetailView({ callRecord, commRecord, onClose }) {
   const [showLinkPanel, setShowLinkPanel] = useState(false);
   const [showNoteEditor, setShowNoteEditor] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingSummary, setEditingSummary] = useState(commRecord?.notes || "");
+  const [activeTab, setActiveTab] = useState("details");
   const qc = useQueryClient();
+
+  // Fetch transcript if exists
+  const { data: transcript } = useQuery({
+    queryKey: ["call-transcript", callRecord?.transcript_id],
+    queryFn: () =>
+      callRecord?.transcript_id
+        ? base44.entities.CallTranscript.filter({ id: callRecord.transcript_id }).then((r) => r[0])
+        : null,
+    enabled: !!callRecord?.transcript_id,
+  });
+
+  // Fetch recording if exists
+  const { data: recording } = useQuery({
+    queryKey: ["call-recording", callRecord?.recording_id],
+    queryFn: () =>
+      callRecord?.recording_id
+        ? base44.entities.CallRecording.filter({ id: callRecord.recording_id }).then((r) => r[0])
+        : null,
+    enabled: !!callRecord?.recording_id,
+  });
 
   const updateMutation = useMutation({
     mutationFn: (data) =>
@@ -63,8 +88,42 @@ export default function CallDetailView({ callRecord, commRecord, onClose }) {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="border-b border-border px-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="w-full justify-start rounded-none border-0 bg-transparent h-auto p-0">
+            <TabsTrigger
+              value="details"
+              className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+            >
+              Details
+            </TabsTrigger>
+            {recording && (
+              <TabsTrigger
+                value="audio"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+              >
+                Audio
+              </TabsTrigger>
+            )}
+            {transcript && (
+              <TabsTrigger
+                value="transcript"
+                className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex items-center gap-1"
+              >
+                <FileText className="w-4 h-4" />
+                Transcript
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </Tabs>
+      </div>
+
       {/* Call Details */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {activeTab === "details" && (
+          <>
+            {!recording && <CallAudioUpload callRecord={callRecord} onUploaded={() => setActiveTab("audio")} />
         {/* Metadata */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-card border border-border rounded-lg p-3">
@@ -137,33 +196,32 @@ export default function CallDetailView({ callRecord, commRecord, onClose }) {
           )}
         </div>
 
-        {/* Recordings/Transcripts */}
-        {callRecord.recording_id && (
-          <div className="bg-card border border-border rounded-lg p-4">
-            <p className="text-sm font-semibold mb-2">Recording</p>
-            <p className="text-xs text-muted-foreground">Recording ID: {callRecord.recording_id}</p>
-          </div>
+            {/* Tags */}
+            {commRecord.tags?.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold mb-2">Tags</p>
+                <div className="flex flex-wrap gap-2">
+                  {commRecord.tags.map((tag) => (
+                    <span key={tag} className="px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
-        {callRecord.transcript_id && (
-          <div className="bg-card border border-border rounded-lg p-4">
-            <p className="text-sm font-semibold mb-2">Transcript</p>
-            <p className="text-xs text-muted-foreground">Transcript ID: {callRecord.transcript_id}</p>
-          </div>
+        {activeTab === "audio" && recording && (
+          <CallAudioPlayer recordingUrl={recording.file_url} fileName={recording.file_name} />
         )}
 
-        {/* Tags */}
-        {commRecord.tags?.length > 0 && (
-          <div>
-            <p className="text-sm font-semibold mb-2">Tags</p>
-            <div className="flex flex-wrap gap-2">
-              {commRecord.tags.map((tag) => (
-                <span key={tag} className="px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
+        {activeTab === "transcript" && transcript && (
+          <CallTranscriptViewer
+            transcript={transcript}
+            callRecord={callRecord}
+            commRecord={commRecord}
+          />
         )}
       </div>
 

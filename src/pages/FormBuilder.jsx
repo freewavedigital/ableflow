@@ -275,6 +275,10 @@ export default function FormBuilder() {
           field={selectedField}
           onUpdate={updateField}
           onClose={() => setSelectedField(null)}
+          logicRules={logicRules}
+          onUpdateLogicRules={setLogicRules}
+          allFields={allFields}
+          sections={sections}
         />
       </div>
     </div>

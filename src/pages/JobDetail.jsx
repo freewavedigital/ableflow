@@ -15,6 +15,7 @@ import JobActivityFeed from "@/components/jobs/JobActivityFeed";
 import { usePermissions } from "@/hooks/usePermissions";
 import { format } from "date-fns";
 import AgreementPanel from "@/components/shared/AgreementPanel";
+import TasksSidebar from "@/components/tasks/TasksSidebar";
 
 export default function JobDetail() {
   const params = new URLSearchParams(window.location.search);

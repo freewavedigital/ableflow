@@ -11,6 +11,7 @@ import WebsiteFormPublishPanel from "./WebsiteFormPublishPanel";
 
 export default function WebsiteFormsTab({ templates, submissions, onRefresh }) {
   const [viewingSubs, setViewingSubs] = useState(null);
+  const [publishingTemplate, setPublishingTemplate] = useState(null);
   const qc = useQueryClient();
 
   const statusMutation = useMutation({

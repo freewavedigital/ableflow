@@ -9,6 +9,7 @@ import PageHeader from "@/components/shared/PageHeader";
 import WebsiteFormsTab from "@/components/forms/WebsiteFormsTab.jsx";
 import JobFormsTab from "@/components/forms/JobFormsTab";
 import AgreementFormsTab from "@/components/forms/AgreementFormsTab";
+import FormAutomationTab from "@/components/forms/FormAutomationTab";
 import NewFormTemplateDialog from "@/components/forms/NewFormTemplateDialog";
 import FormsContainer from "@/components/forms/FormsContainer";
 
@@ -59,6 +60,7 @@ export default function Forms() {
             activeTab === "website" ? "Website Forms" :
             activeTab === "job" ? "Job Forms" :
             activeTab === "agreement" ? "Agreements" :
+            activeTab === "automation" ? "Form Automation" :
             activeTab === "templates" ? "Form Templates" :
             activeTab === "notifications" ? "Form Notifications" :
             activeTab === "embed" ? "Embed & Publish" :
@@ -68,6 +70,7 @@ export default function Forms() {
             activeTab === "website" ? "Public lead capture forms" :
             activeTab === "job" ? "Technician inspection forms" :
             activeTab === "agreement" ? "Digital signature agreements" :
+            activeTab === "automation" ? "Manage form triggers and automation rules" :
             activeTab === "templates" ? "Reusable form templates" :
             activeTab === "notifications" ? "Form submission alerts" :
             activeTab === "embed" ? "Publish forms on your website" :
@@ -110,6 +113,9 @@ export default function Forms() {
               submissions={agreementSubs}
               onRefresh={refetch}
             />
+          )}
+          {activeTab === "automation" && (
+            <FormAutomationTab />
           )}
           {activeTab === "templates" && (
             <div className="p-6">

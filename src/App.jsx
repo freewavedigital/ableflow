@@ -22,6 +22,7 @@ import Clients from "@/pages/Clients";
 import ClientDetail from "@/pages/ClientDetail";
 import Quotes from "@/pages/Quotes";
 import Invoices from "@/pages/Invoices";
+import Tasks from "@/pages/Tasks";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

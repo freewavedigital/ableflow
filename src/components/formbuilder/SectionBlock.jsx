@@ -15,6 +15,7 @@ export default function SectionBlock({
   onAddField,
   onDeleteField,
   onDuplicateField,
+  logicRules,
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);

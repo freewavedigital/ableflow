@@ -15,6 +15,7 @@ export default function BuilderCanvas({
   onDeleteField,
   onDuplicateField,
   onDragEnd,
+  logicRules,
 }) {
   return (
     <div className="flex-1 overflow-y-auto bg-muted/20 p-4">

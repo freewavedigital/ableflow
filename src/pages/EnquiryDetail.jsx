@@ -198,7 +198,7 @@ export default function EnquiryDetail() {
           />
 
           {/* Tasks & Reminders */}
-          <LeadTasksSidebar enquiryId={id} />
+          <LeadTasksSidebar enquiryId={id} enquiry={enquiry} />
 
           {/* Photos */}
           <LeadPhotoUpload

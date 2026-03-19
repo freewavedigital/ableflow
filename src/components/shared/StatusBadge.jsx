@@ -11,6 +11,7 @@ const STATUS_CONFIG = {
   tentative_dates: { label: "Tentative Dates", color: "amber" },
   agreement_sent: { label: "Agreement Sent", color: "cyan" },
   ready_to_schedule: { label: "Ready to Schedule", color: "green" },
+  scheduled: { label: "Scheduled", color: "emerald" },
   converted_to_job: { label: "Converted", color: "emerald" },
   lost: { label: "Lost", color: "red" },
 

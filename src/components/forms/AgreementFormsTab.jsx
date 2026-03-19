@@ -5,7 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import FormSubmissionsDrawer from "./FormSubmissionsDrawer";
 import EmptyState from "@/components/shared/EmptyState";
-import FormStatusBadge from "./FormStatusBadge";
+import FormStatusBadge from "./FormStatusBadge.jsx";
 
 const LINKED_TO_LABELS = {
   lead: "→ Lead",

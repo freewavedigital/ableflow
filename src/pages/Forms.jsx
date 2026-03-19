@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import { Globe, Briefcase, FileSignature, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import WebsiteFormsTab from "@/components/forms/WebsiteFormsTab";
+import WebsiteFormsTab from "@/components/forms/WebsiteFormsTab.jsx";
 import JobFormsTab from "@/components/forms/JobFormsTab";
 import AgreementFormsTab from "@/components/forms/AgreementFormsTab";
 import NewFormTemplateDialog from "@/components/forms/NewFormTemplateDialog";

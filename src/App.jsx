@@ -90,6 +90,7 @@ function App() {
           {/* Public routes — no auth required */}
           <Routes>
             <Route path="/f/:id" element={<PublicForm />} />
+            <Route path="/agreement/:agreementId" element={<AgreementSign />} />
             <Route path="/*" element={<AuthenticatedApp />} />
           </Routes>
         </Router>

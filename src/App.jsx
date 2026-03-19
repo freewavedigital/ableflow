@@ -36,6 +36,8 @@ import PublicForm from "@/pages/PublicForm";
 import AgreementSign from "@/pages/AgreementSign";
 import FormSubmissions from "@/pages/FormSubmissions";
 import Communications from "@/pages/Communications";
+import SMSTemplates from "@/pages/SMSTemplates";
+import SMSAutomation from "@/pages/SMSAutomation";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -82,6 +84,8 @@ const AuthenticatedApp = () => {
           <Route path="/FormBuilder" element={<FormBuilder />} />
           <Route path="/FormSubmissions" element={<FormSubmissions />} />
           <Route path="/Communications" element={<Communications />} />
+          <Route path="/SMSTemplates" element={<SMSTemplates />} />
+          <Route path="/SMSAutomation" element={<SMSAutomation />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

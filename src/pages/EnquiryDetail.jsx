@@ -2,17 +2,21 @@ import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Phone, Mail, MapPin, Building2 } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Lock, Briefcase } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
+
+// Lead-specific components
 import LeadStagePipeline from "@/components/leads/LeadStagePipeline";
 import LeadContextPanel from "@/components/leads/LeadContextPanel";
 import LeadActivityFeed from "@/components/leads/LeadActivityFeed";
 import LeadPhotoUpload from "@/components/leads/LeadPhotoUpload";
 import LeadTasksSidebar from "@/components/leads/LeadTasksSidebar";
-import { format } from "date-fns";
+import LeadContactSitePanel from "@/components/leads/LeadContactSitePanel";
+import LeadServicePanel from "@/components/leads/LeadServicePanel";
+import LeadMetaSidebar from "@/components/leads/LeadMetaSidebar";
 
 export default function EnquiryDetail() {
   const params = new URLSearchParams(window.location.search);
@@ -22,7 +26,7 @@ export default function EnquiryDetail() {
   const { data: enquiry, isLoading } = useQuery({
     queryKey: ["enquiry", id],
     queryFn: () => base44.entities.Enquiry.filter({ id }),
-    select: (data) => data[0],
+    select: (d) => d[0],
     enabled: !!id,
   });
 
@@ -42,14 +46,17 @@ export default function EnquiryDetail() {
     queryFn: () => base44.entities.Branch.list(),
   });
 
+  const { data: users = [] } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => base44.entities.User.list(),
+  });
+
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.Enquiry.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["enquiry", id] }),
   });
 
-  const handleFieldUpdate = (field, value) => {
-    updateMutation.mutate({ [field]: value });
-  };
+  const handleFieldUpdate = (field, value) => updateMutation.mutate({ [field]: value });
 
   const handleStatusChange = (newStatus) => {
     updateMutation.mutate({ status: newStatus });
@@ -60,7 +67,7 @@ export default function EnquiryDetail() {
       title: `Stage → ${newStatus.replace(/_/g, " ")}`,
       content: `Lead moved from "${enquiry.status.replace(/_/g, " ")}" to "${newStatus.replace(/_/g, " ")}"`,
       metadata: { old_status: enquiry.status, new_status: newStatus },
-    });
+    }).then(() => queryClient.invalidateQueries({ queryKey: ["activities", "enquiry", id] }));
   };
 
   const handleMarkLost = () => {
@@ -82,153 +89,115 @@ export default function EnquiryDetail() {
 
   const branchName = branches.find((b) => b.id === enquiry.branch_id)?.name;
   const isTerminal = ["converted_to_job", "lost"].includes(enquiry.status);
+  const isConverted = enquiry.status === "converted_to_job";
+  const isLost = enquiry.status === "lost";
 
   return (
-    <div className="p-4 lg:p-6 max-w-6xl mx-auto">
-      {/* Back nav */}
+    <div className="p-4 lg:p-6 max-w-7xl mx-auto">
+
+      {/* Back */}
       <div className="mb-4">
         <Link
           to="/Enquiries"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Enquiries
         </Link>
       </div>
 
+      {/* Header */}
       <PageHeader
-        title={`${enquiry.reference_number || "Enquiry"} — ${enquiry.contact_name}`}
-        subtitle={`${enquiry.service_type?.replace(/_/g, " ")} · ${enquiry.source}`}
+        title={enquiry.reference_number ? `${enquiry.reference_number} — ${enquiry.contact_name}` : enquiry.contact_name}
+        subtitle={[
+          enquiry.service_type?.replace(/_/g, " "),
+          enquiry.site_suburb,
+          branchName,
+        ].filter(Boolean).join(" · ")}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <StatusBadge status={enquiry.status} />
+          <StatusBadge status={enquiry.priority || "normal"} />
           {!isTerminal && (
-            <button
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
               onClick={handleMarkLost}
-              className="text-xs text-muted-foreground hover:text-destructive transition-colors"
             >
+              <AlertTriangle className="w-3 h-3 mr-1" />
               Mark Lost
-            </button>
+            </Button>
           )}
         </div>
       </PageHeader>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* ── Left / Main column ── */}
+      {/* Terminal banner */}
+      {isConverted && (
+        <div className="flex items-center gap-3 px-4 py-3 mb-5 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-800">
+          <Briefcase className="w-4 h-4 flex-shrink-0" />
+          <span className="font-medium">This lead has been converted to a Job.</span>
+          {enquiry.converted_job_id && (
+            <Link to={`/JobDetail?id=${enquiry.converted_job_id}`} className="ml-auto text-emerald-700 underline font-medium text-xs">
+              View Job →
+            </Link>
+          )}
+        </div>
+      )}
+      {isLost && (
+        <div className="flex items-center gap-3 px-4 py-3 mb-5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-800">
+          <Lock className="w-4 h-4 flex-shrink-0" />
+          <span className="font-medium">This lead was marked as lost.</span>
+          {enquiry.lost_reason && <span className="text-xs text-red-600 ml-1">Reason: {enquiry.lost_reason}</span>}
+        </div>
+      )}
+
+      <div className="grid lg:grid-cols-3 gap-5">
+
+        {/* ── LEFT / MAIN COLUMN ── */}
         <div className="lg:col-span-2 space-y-5">
 
-          {/* Pipeline */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Lead Stage</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <LeadStagePipeline
-                currentStatus={enquiry.status}
-                onStageChange={handleStatusChange}
-                disabled={isTerminal}
-              />
-            </CardContent>
-          </Card>
+          {/* 1. Stage Pipeline */}
+          {!isTerminal && (
+            <Card className="border-primary/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm text-primary">Lead Stage</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <LeadStagePipeline
+                  currentStatus={enquiry.status}
+                  onStageChange={handleStatusChange}
+                  disabled={isTerminal}
+                />
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Stage-contextual actions */}
-          <LeadContextPanel
-            enquiry={enquiry}
-            onUpdate={handleFieldUpdate}
-          />
+          {/* 2. Stage-contextual action panels */}
+          <LeadContextPanel enquiry={enquiry} onUpdate={handleFieldUpdate} />
 
-          {/* Issue Details */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Issue Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div>
-                <Label className="text-xs text-muted-foreground">Summary</Label>
-                <p className="mt-0.5">{enquiry.issue_summary || "No summary provided"}</p>
-              </div>
-              {enquiry.additional_notes && (
-                <div>
-                  <Label className="text-xs text-muted-foreground">Additional Notes</Label>
-                  <p className="mt-0.5">{enquiry.additional_notes}</p>
-                </div>
-              )}
-              <div className="flex gap-4 flex-wrap text-xs text-muted-foreground pt-1 border-t border-border">
-                <span>Property: <strong className="text-foreground capitalize">{enquiry.property_type?.replace(/_/g, " ")}</strong></span>
-                <span>Pool: <strong className="text-foreground capitalize">{enquiry.pool_type?.replace(/_/g, " ")}</strong></span>
-                {enquiry.previous_customer && (
-                  <span className="text-green-700 font-medium">↩ Returning customer</span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {/* 3. Contact & Site — inline editable */}
+          <LeadContactSitePanel enquiry={enquiry} onUpdate={handleFieldUpdate} />
 
-          {/* Activity Feed */}
+          {/* 4. Service & Issue Details */}
+          <LeadServicePanel enquiry={enquiry} onUpdate={handleFieldUpdate} />
+
+          {/* 5. Activity Feed & Communications */}
           <LeadActivityFeed enquiryId={id} activities={activities} />
         </div>
 
-        {/* ── Right / Sidebar ── */}
+        {/* ── RIGHT / SIDEBAR ── */}
         <div className="space-y-4">
-          {/* Contact */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Contact</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <a href={`tel:${enquiry.contact_phone}`} className="text-primary hover:underline">
-                  {enquiry.contact_phone}
-                </a>
-              </div>
-              {enquiry.contact_email && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                  <a href={`mailto:${enquiry.contact_email}`} className="text-primary hover:underline truncate">
-                    {enquiry.contact_email}
-                  </a>
-                </div>
-              )}
-              {enquiry.site_address && (
-                <div className="flex items-start gap-2 text-sm">
-                  <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <span>
-                    {enquiry.site_address}
-                    {enquiry.site_suburb && `, ${enquiry.site_suburb}`}
-                    {enquiry.site_state && `, ${enquiry.site_state}`}
-                    {enquiry.site_postcode && ` ${enquiry.site_postcode}`}
-                  </span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
-          {/* Details */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2.5 text-sm">
-              {[
-                ["Branch", branchName || "—"],
-                ["Service", enquiry.service_type?.replace(/_/g, " ")],
-                ["Source", enquiry.source],
-                ["Priority", <StatusBadge key="p" status={enquiry.priority || "normal"} />],
-                ["Created", enquiry.created_date ? format(new Date(enquiry.created_date), "d MMM yyyy") : "—"],
-                enquiry.assigned_to ? ["Assigned To", enquiry.assigned_to] : null,
-                enquiry.converted_job_id ? ["Job", <Link key="j" to={`/JobDetail?id=${enquiry.converted_job_id}`} className="text-primary hover:underline text-xs">View Job →</Link>] : null,
-              ]
-                .filter(Boolean)
-                .map(([label, value]) => (
-                  <div key={label} className="flex justify-between items-center gap-2">
-                    <span className="text-muted-foreground flex-shrink-0">{label}</span>
-                    <span className="font-medium text-right capitalize">{value}</span>
-                  </div>
-                ))}
-            </CardContent>
-          </Card>
+          {/* Lead meta + assignment */}
+          <LeadMetaSidebar
+            enquiry={enquiry}
+            branchName={branchName}
+            users={users}
+            onUpdate={handleFieldUpdate}
+          />
 
-          {/* Tasks */}
+          {/* Tasks & Reminders */}
           <LeadTasksSidebar enquiryId={id} />
 
           {/* Photos */}

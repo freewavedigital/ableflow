@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Eye } from "lucide-react";
 import { toast } from "sonner";
+import FormPreviewModal from "@/components/formbuilder/FormPreviewModal";
 
 const nanoid = (len = 8) => Math.random().toString(36).slice(2, 2 + len);
 
@@ -55,6 +56,7 @@ export default function FormBuilder() {
   const [logicRules, setLogicRules] = useState([]);
   const [actionTriggers, setActionTriggers] = useState([]);
   const [activeTab, setActiveTab] = useState("fields");
+  const [showPreview, setShowPreview] = useState(false);
 
   // Load existing template
   const { data: existing, isLoading } = useQuery({
@@ -283,6 +285,10 @@ export default function FormBuilder() {
           <span className="text-xs text-muted-foreground hidden sm:block">
             {sections.reduce((acc, s) => acc + s.fields.length, 0)} fields · {sections.length} sections
           </span>
+          <Button size="sm" variant="outline" onClick={() => setShowPreview(true)}>
+            <Eye className="w-4 h-4" />
+            <span className="hidden sm:inline ml-1">Preview</span>
+          </Button>
           <Button size="sm" variant="outline" onClick={handleSave} disabled={saveMutation.isPending}>
             {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             <span className="hidden sm:inline ml-1">{templateId ? "Save" : "Create"}</span>
@@ -379,6 +385,16 @@ export default function FormBuilder() {
           </div>
         )}
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <FormPreviewModal
+          sections={sections}
+          logicRules={logicRules}
+          formName={meta.name}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
     </div>
   );
 }

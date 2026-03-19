@@ -9,27 +9,30 @@ import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Globe, Briefcase, FileSignature } from "lucide-react";
 
+// Normalize legacy "enquiry" tab value to "website"
+const normalizeType = (t) => (t === "enquiry" ? "website" : t);
+
 const FORM_TYPES = [
   {
-    value: "enquiry",
-    label: "Enquiry Form",
+    value: "website",
+    label: "Website Form",
     icon: Globe,
-    description: "Public-facing form to capture leads. Submissions feed into the Enquiries pipeline.",
-    color: "blue",
+    description: "Public-facing form to capture leads. Submissions create Lead records in the Enquiries pipeline.",
+    relatedObject: "Lead",
   },
   {
     value: "job",
     label: "Job Form",
     icon: Briefcase,
-    description: "Internal inspection form completed by technicians in the field.",
-    color: "amber",
+    description: "Internal inspection form completed by technicians. Linked to a Job record.",
+    relatedObject: "Job",
   },
   {
     value: "agreement",
     label: "Agreement / Contract",
     icon: FileSignature,
-    description: "Client-facing contract with your service terms and a digital signature field.",
-    color: "purple",
+    description: "Client-facing contract with service terms and a digital signature field. Linked to a Lead or Job.",
+    relatedObject: "Lead_or_Job",
   },
 ];
 
@@ -47,13 +50,21 @@ const JOB_TYPES = [
   { value: "other", label: "Other" },
 ];
 
-export default function NewFormTemplateDialog({ defaultType = "enquiry", onCreated, onClose }) {
+const AGREEMENT_LINKED_TO = [
+  { value: "either", label: "Lead or Job (either stage)" },
+  { value: "lead", label: "Lead only (pre-job)" },
+  { value: "job", label: "Job only (post-conversion)" },
+];
+
+export default function NewFormTemplateDialog({ defaultType = "website", onCreated, onClose }) {
   const qc = useQueryClient();
   const [form, setForm] = useState({
-    form_type: defaultType,
+    form_type: normalizeType(defaultType),
     name: "",
     description: "",
     linked_job_type: "any",
+    agreement_linked_to: "either",
+    requires_signature: true,
     is_public: false,
     agreement_body: "",
     submission_email_to: "",
@@ -69,20 +80,34 @@ export default function NewFormTemplateDialog({ defaultType = "enquiry", onCreat
 
   const handleSubmit = () => {
     if (!form.name.trim()) return;
+
+    const selectedType = FORM_TYPES.find((t) => t.value === form.form_type);
+
     const payload = {
       name: form.name.trim(),
       form_type: form.form_type,
+      related_object: selectedType.relatedObject,
       description: form.description,
-      is_active: true,
+      status: "draft",
+      version: 1,
+      is_active: false,
       sections: [],
     };
-    if (form.form_type === "job") payload.linked_job_type = form.linked_job_type;
-    if (form.form_type === "enquiry") {
+
+    if (form.form_type === "job") {
+      payload.linked_job_type = form.linked_job_type;
+    }
+    if (form.form_type === "website") {
       payload.is_public = form.is_public;
       payload.submission_email_to = form.submission_email_to;
       payload.success_message = form.success_message;
     }
-    if (form.form_type === "agreement") payload.agreement_body = form.agreement_body;
+    if (form.form_type === "agreement") {
+      payload.agreement_body = form.agreement_body;
+      payload.agreement_linked_to = form.agreement_linked_to;
+      payload.requires_signature = form.requires_signature;
+    }
+
     createMutation.mutate(payload);
   };
 
@@ -112,13 +137,20 @@ export default function NewFormTemplateDialog({ defaultType = "enquiry", onCreat
                     }`}
                   >
                     <Icon className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground"}`} />
-                    <span className={`text-xs font-medium leading-tight ${active ? "text-primary" : "text-foreground"}`}>{t.label}</span>
+                    <span className={`text-xs font-medium leading-tight ${active ? "text-primary" : "text-foreground"}`}>
+                      {t.label}
+                    </span>
                   </button>
                 );
               })}
             </div>
             {selectedType && (
-              <p className="text-xs text-muted-foreground">{selectedType.description}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-muted-foreground flex-1">{selectedType.description}</p>
+                <span className="px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground rounded-full whitespace-nowrap">
+                  → {selectedType.relatedObject.replace("_or_", " or ")}
+                </span>
+              </div>
             )}
           </div>
 
@@ -127,7 +159,7 @@ export default function NewFormTemplateDialog({ defaultType = "enquiry", onCreat
             <Label>Template Name <span className="text-destructive">*</span></Label>
             <Input
               placeholder={
-                form.form_type === "enquiry" ? "e.g. Pool Leak Enquiry Form" :
+                form.form_type === "website" ? "e.g. Pool Leak Enquiry Form" :
                 form.form_type === "job" ? "e.g. Initial Leak Inspection Form" :
                 "e.g. Service Agreement – Inspection"
               }
@@ -162,8 +194,8 @@ export default function NewFormTemplateDialog({ defaultType = "enquiry", onCreat
             </div>
           )}
 
-          {/* Enquiry-specific */}
-          {form.form_type === "enquiry" && (
+          {/* Website-specific */}
+          {form.form_type === "website" && (
             <>
               <div className="space-y-1.5">
                 <Label>Notification Email</Label>
@@ -173,7 +205,7 @@ export default function NewFormTemplateDialog({ defaultType = "enquiry", onCreat
                   value={form.submission_email_to}
                   onChange={(e) => set("submission_email_to", e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground">Send an alert to this address when a new enquiry is submitted.</p>
+                <p className="text-xs text-muted-foreground">Alert this address when a new lead is submitted.</p>
               </div>
               <div className="space-y-1.5">
                 <Label>Success Message</Label>
@@ -188,26 +220,42 @@ export default function NewFormTemplateDialog({ defaultType = "enquiry", onCreat
             </>
           )}
 
-          {/* Agreement body */}
+          {/* Agreement-specific */}
           {form.form_type === "agreement" && (
-            <div className="space-y-1.5">
-              <Label>Agreement Body Text</Label>
-              <Textarea
-                placeholder="Enter your service agreement terms here. The client will read this before signing."
-                value={form.agreement_body}
-                onChange={(e) => set("agreement_body", e.target.value)}
-                rows={5}
-                className="resize-none"
-              />
-            </div>
+            <>
+              <div className="space-y-1.5">
+                <Label>Linked To</Label>
+                <Select value={form.agreement_linked_to} onValueChange={(v) => set("agreement_linked_to", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {AGREEMENT_LINKED_TO.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Which workflow stage this agreement applies to.</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Agreement Body Text</Label>
+                <Textarea
+                  placeholder="Enter your service agreement terms here. The client will read this before signing."
+                  value={form.agreement_body}
+                  onChange={(e) => set("agreement_body", e.target.value)}
+                  rows={5}
+                  className="resize-none"
+                />
+              </div>
+            </>
           )}
+
+          <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+            New templates are saved as <strong>Draft</strong>. Activate them when they are ready to use.
+          </p>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button onClick={handleSubmit} disabled={!form.name.trim() || createMutation.isPending}>
             {createMutation.isPending && <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />}
-            Create Template
+            Create as Draft
           </Button>
         </DialogFooter>
       </DialogContent>

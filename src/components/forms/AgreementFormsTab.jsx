@@ -1,24 +1,25 @@
 import React, { useState } from "react";
-import { FileSignature, Eye, ToggleLeft, ToggleRight, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { FileSignature, Eye, CheckCircle2, Clock, Archive, CheckCircle, FileEdit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import FormSubmissionsDrawer from "./FormSubmissionsDrawer";
 import EmptyState from "@/components/shared/EmptyState";
+import FormStatusBadge from "./FormStatusBadge";
 
-const STATUS_CONFIG = {
-  signed: { label: "Signed", icon: CheckCircle2, color: "text-green-600" },
-  submitted: { label: "Sent", icon: Clock, color: "text-blue-600" },
-  draft: { label: "Draft", icon: Clock, color: "text-muted-foreground" },
-  converted: { label: "Converted", icon: CheckCircle2, color: "text-emerald-600" },
+const LINKED_TO_LABELS = {
+  lead: "→ Lead",
+  job: "→ Job",
+  either: "→ Lead or Job",
 };
 
 export default function AgreementFormsTab({ templates, submissions, onRefresh }) {
   const [viewingSubs, setViewingSubs] = useState(null);
   const qc = useQueryClient();
 
-  const toggleMutation = useMutation({
-    mutationFn: ({ id, is_active }) => base44.entities.FormTemplate.update(id, { is_active }),
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }) =>
+      base44.entities.FormTemplate.update(id, { status, is_active: status === "active" }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["form-templates"] }),
   });
 
@@ -27,7 +28,7 @@ export default function AgreementFormsTab({ templates, submissions, onRefresh })
       <EmptyState
         icon={FileSignature}
         title="No agreement templates yet"
-        description="Create service agreements or contracts that can be sent to clients for digital signature. Link them to jobs or leads."
+        description="Create service agreements or contracts that can be sent to clients for digital signature. Link them to Jobs or Leads depending on workflow stage."
       />
     );
   }
@@ -37,7 +38,8 @@ export default function AgreementFormsTab({ templates, submissions, onRefresh })
       <div className="p-3 bg-purple-50 border border-purple-200 rounded-xl text-sm text-purple-800 flex items-start gap-2">
         <FileSignature className="w-4 h-4 mt-0.5 flex-shrink-0" />
         <div>
-          <strong>Agreement forms</strong> are client-facing contracts. They include your terms of service or inspection agreement body text plus a digital signature field. They can be sent to clients from a Job or Lead record.
+          <strong>Agreement Forms</strong> are client-facing contracts. They include your terms and a digital signature field.
+          They can be linked to a <strong>Lead</strong> (pre-job) or a <strong>Job</strong> (post-conversion) depending on your workflow.
         </div>
       </div>
 
@@ -45,6 +47,8 @@ export default function AgreementFormsTab({ templates, submissions, onRefresh })
         const subs = submissions.filter((s) => s.template_id === t.id);
         const signedCount = subs.filter((s) => s.status === "signed").length;
         const pendingCount = subs.filter((s) => s.status === "submitted").length;
+        const status = t.status || (t.is_active ? "active" : "draft");
+        const linkedLabel = LINKED_TO_LABELS[t.agreement_linked_to] || "→ Lead or Job";
 
         return (
           <div key={t.id} className="bg-card border border-border rounded-xl p-5">
@@ -52,10 +56,17 @@ export default function AgreementFormsTab({ templates, submissions, onRefresh })
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h3 className="font-semibold text-base">{t.name}</h3>
-                  {t.is_active ? (
-                    <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">Active</span>
-                  ) : (
-                    <span className="px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground rounded-full">Inactive</span>
+                  <FormStatusBadge status={status} />
+                  <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">
+                    {linkedLabel}
+                  </span>
+                  <span className="px-2 py-0.5 text-xs text-muted-foreground bg-muted rounded-full">
+                    v{t.version || 1}
+                  </span>
+                  {t.requires_signature && (
+                    <span className="px-2 py-0.5 text-xs font-medium bg-purple-50 text-purple-600 border border-purple-200 rounded-full flex items-center gap-1">
+                      <FileSignature className="w-3 h-3" /> Signature required
+                    </span>
                   )}
                 </div>
                 {t.description && <p className="text-sm text-muted-foreground">{t.description}</p>}
@@ -80,21 +91,30 @@ export default function AgreementFormsTab({ templates, submissions, onRefresh })
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 {subs.length > 0 && (
                   <Button size="sm" variant="outline" onClick={() => setViewingSubs({ template: t, subs })}>
                     <Eye className="w-3.5 h-3.5 mr-1" /> View
                   </Button>
                 )}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => toggleMutation.mutate({ id: t.id, is_active: !t.is_active })}
-                >
-                  {t.is_active
-                    ? <ToggleRight className="w-4 h-4 text-green-600" />
-                    : <ToggleLeft className="w-4 h-4 text-muted-foreground" />}
-                </Button>
+                {status === "draft" && (
+                  <Button size="sm" variant="outline" className="text-green-700 border-green-200 hover:bg-green-50"
+                    onClick={() => statusMutation.mutate({ id: t.id, status: "active" })}>
+                    <CheckCircle className="w-3.5 h-3.5 mr-1" /> Activate
+                  </Button>
+                )}
+                {status === "active" && (
+                  <Button size="sm" variant="outline" className="text-amber-700 border-amber-200 hover:bg-amber-50"
+                    onClick={() => statusMutation.mutate({ id: t.id, status: "archived" })}>
+                    <Archive className="w-3.5 h-3.5 mr-1" /> Archive
+                  </Button>
+                )}
+                {status === "archived" && (
+                  <Button size="sm" variant="outline" className="text-muted-foreground"
+                    onClick={() => statusMutation.mutate({ id: t.id, status: "draft" })}>
+                    <FileEdit className="w-3.5 h-3.5 mr-1" /> Restore
+                  </Button>
+                )}
               </div>
             </div>
           </div>

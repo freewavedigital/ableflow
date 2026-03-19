@@ -35,6 +35,7 @@ export default function Forms() {
     
     if (type === "job") setActiveTab("job");
     else if (type === "agreement") setActiveTab("agreement");
+    else if (tab === "automation") setActiveTab("automation");
     else if (tab === "templates") setActiveTab("templates");
     else if (tab === "notifications") setActiveTab("notifications");
     else if (tab === "embed") setActiveTab("embed");

@@ -1,146 +1,206 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
-import { useBranch } from "@/hooks/useBranch";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { useBranch } from "@/hooks/useBranch";
 import {
-  ChevronLeft,
-  ChevronRight,
-  Calendar as CalendarIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import PageHeader from "@/components/shared/PageHeader";
-import StatusBadge from "@/components/shared/StatusBadge";
-import {
-  format,
-  startOfWeek,
-  endOfWeek,
-  addDays,
-  addWeeks,
-  subWeeks,
-  isSameDay,
-  parseISO,
+  format, startOfWeek, addDays, addWeeks, subWeeks, subDays,
+  isSameDay, parseISO,
 } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, Plus, AlertTriangle } from "lucide-react";
+import PageHeader from "@/components/shared/PageHeader";
+
+import ScheduleFilters from "@/components/schedule/ScheduleFilters";
+import WeekView from "@/components/schedule/WeekView";
+import DayView from "@/components/schedule/DayView";
+import UnassignedPanel from "@/components/schedule/UnassignedPanel";
+import RescheduleDialog from "@/components/schedule/RescheduleDialog";
 
 export default function Schedule() {
-  const [currentWeek, setCurrentWeek] = useState(new Date());
-  const { selectedBranchId } = useBranch();
+  const queryClient = useQueryClient();
+  const { branches, selectedBranchId, setSelectedBranchId } = useBranch();
 
-  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 1 });
-  const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const [view, setView] = useState("week");
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [filterTechnician, setFilterTechnician] = useState("all");
+  const [filterJobType, setFilterJobType] = useState("all");
+  const [rescheduleJob, setRescheduleJob] = useState(null);
 
-  const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ["jobs"],
-    queryFn: () => base44.entities.Job.list("-scheduled_date", 500),
+  // Compute week start for week view
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+
+  // Fetch all jobs (broad date window)
+  const { data: allJobs = [], isLoading } = useQuery({
+    queryKey: ["schedule-jobs"],
+    queryFn: () =>
+      base44.entities.Job.list("-scheduled_date", 1000),
+    staleTime: 30_000,
   });
 
-  const filteredJobs = jobs.filter((j) =>
-    selectedBranchId === "all" ? true : j.branch_id === selectedBranchId
+  // Fetch users to get technician list
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const technicians = useMemo(
+    () => allUsers.filter((u) => ["technician", "admin", "branch_manager"].includes(u.role)),
+    [allUsers]
   );
 
-  const getJobsForDay = (date) => {
-    const dateStr = format(date, "yyyy-MM-dd");
-    return filteredJobs.filter((j) => j.scheduled_date === dateStr);
+  // Apply filters
+  const filteredJobs = useMemo(() => {
+    return allJobs.filter((j) => {
+      if (selectedBranchId !== "all" && j.branch_id !== selectedBranchId) return false;
+      if (filterTechnician === "unassigned" && j.assigned_technician) return false;
+      if (filterTechnician !== "all" && filterTechnician !== "unassigned" && j.assigned_technician !== filterTechnician) return false;
+      if (filterJobType !== "all" && j.job_type !== filterJobType) return false;
+      return true;
+    });
+  }, [allJobs, selectedBranchId, filterTechnician, filterJobType]);
+
+  // Unassigned & scheduled (has a date but no technician)
+  const unassignedJobs = useMemo(
+    () => filteredJobs.filter((j) => !j.assigned_technician && j.scheduled_date && !["cancelled", "closed", "completed"].includes(j.status)),
+    [filteredJobs]
+  );
+
+  // Conflict count for header badge
+  const conflictCount = useMemo(() => {
+    const byDayTech = {};
+    filteredJobs.forEach((j) => {
+      if (!j.scheduled_date || !j.assigned_technician || !j.scheduled_time_start) return;
+      const key = `${j.scheduled_date}__${j.assigned_technician}`;
+      if (!byDayTech[key]) byDayTech[key] = [];
+      byDayTech[key].push(j);
+    });
+    let conflicts = 0;
+    Object.values(byDayTech).forEach((jobs) => {
+      for (let i = 0; i < jobs.length; i++) {
+        for (let k = i + 1; k < jobs.length; k++) {
+          const aStart = jobs[i].scheduled_time_start;
+          const aEnd = jobs[i].scheduled_time_end || aStart;
+          const bStart = jobs[k].scheduled_time_start;
+          const bEnd = jobs[k].scheduled_time_end || bStart;
+          if (aStart < bEnd && aEnd > bStart) conflicts++;
+        }
+      }
+    });
+    return conflicts;
+  }, [filteredJobs]);
+
+  // Drag-drop reschedule
+  const rescheduleMutation = useMutation({
+    mutationFn: ({ jobId, newDate }) =>
+      base44.entities.Job.update(jobId, { scheduled_date: newDate }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["schedule-jobs"] }),
+  });
+
+  const handleDrop = (jobId, newDate) => {
+    rescheduleMutation.mutate({ jobId, newDate });
   };
 
+  // Navigation
+  const goBack = () =>
+    view === "week" ? setCurrentDate(subWeeks(currentDate, 1)) : setCurrentDate(subDays(currentDate, 1));
+  const goForward = () =>
+    view === "week" ? setCurrentDate(addWeeks(currentDate, 1)) : setCurrentDate(addDays(currentDate, 1));
+  const goToday = () => setCurrentDate(new Date());
+
+  const dateLabel =
+    view === "week"
+      ? `${format(weekStart, "d MMM")} — ${format(addDays(weekStart, 6), "d MMM yyyy")}`
+      : format(currentDate, "EEEE, d MMMM yyyy");
+
   return (
-    <div className="p-4 lg:p-6 max-w-7xl mx-auto">
-      <PageHeader title="Schedule" subtitle="Weekly dispatch board">
-        <Link to="/CreateJob">
-          <Button size="sm">
-            <CalendarIcon className="w-4 h-4 mr-2" />
-            New Job
-          </Button>
-        </Link>
+    <div className="p-4 lg:p-6 max-w-screen-2xl mx-auto">
+      {/* Header */}
+      <PageHeader title="Dispatch Board" subtitle="Schedule & manage jobs by date and technician">
+        <div className="flex items-center gap-2">
+          {conflictCount > 0 && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              {conflictCount} conflict{conflictCount !== 1 ? "s" : ""}
+            </div>
+          )}
+          {unassignedJobs.length > 0 && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700 font-medium">
+              ⚡ {unassignedJobs.length} unassigned
+            </div>
+          )}
+          <Link to="/CreateJob">
+            <Button size="sm">
+              <Plus className="w-4 h-4 mr-1" />
+              New Job
+            </Button>
+          </Link>
+        </div>
       </PageHeader>
 
-      {/* Week navigator */}
-      <div className="flex items-center gap-3 mb-5">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => setCurrentWeek(subWeeks(currentWeek, 1))}
-        >
+      {/* Filters */}
+      <ScheduleFilters
+        view={view}
+        setView={(v) => { setView(v); setCurrentDate(new Date()); }}
+        branches={branches}
+        selectedBranchId={selectedBranchId}
+        setSelectedBranchId={setSelectedBranchId}
+        technicians={technicians}
+        filterTechnician={filterTechnician}
+        setFilterTechnician={setFilterTechnician}
+        filterJobType={filterJobType}
+        setFilterJobType={setFilterJobType}
+      />
+
+      {/* Date navigator */}
+      <div className="flex items-center gap-2 mb-4">
+        <Button variant="outline" size="icon" className="h-8 w-8" onClick={goBack}>
           <ChevronLeft className="w-4 h-4" />
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setCurrentWeek(new Date())}
-        >
+        <Button variant="outline" size="sm" className="h-8 px-3 text-xs" onClick={goToday}>
           Today
         </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
-        >
+        <Button variant="outline" size="icon" className="h-8 w-8" onClick={goForward}>
           <ChevronRight className="w-4 h-4" />
         </Button>
-        <span className="text-sm font-medium text-foreground">
-          {format(weekStart, "d MMM")} — {format(weekEnd, "d MMM yyyy")}
-        </span>
+        <span className="text-sm font-semibold text-foreground">{dateLabel}</span>
+        {isLoading && (
+          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin ml-2" />
+        )}
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center h-48">
-          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="flex gap-5 items-start">
+        {/* Main calendar view */}
+        <div className="flex-1 min-w-0">
+          {view === "week" ? (
+            <WeekView
+              weekStart={weekStart}
+              jobs={filteredJobs}
+              technicians={technicians}
+              onDrop={handleDrop}
+            />
+          ) : (
+            <DayView
+              selectedDay={currentDate}
+              jobs={filteredJobs}
+              technicians={technicians}
+            />
+          )}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
-          {days.map((day) => {
-            const dayJobs = getJobsForDay(day);
-            const isToday = isSameDay(day, new Date());
 
-            return (
-              <div key={day.toISOString()} className="min-h-[180px]">
-                <div
-                  className={`text-center py-2 rounded-t-lg ${
-                    isToday
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-foreground"
-                  }`}
-                >
-                  <p className="text-xs font-medium uppercase">
-                    {format(day, "EEE")}
-                  </p>
-                  <p className="text-lg font-semibold">{format(day, "d")}</p>
-                </div>
-                <div className="border border-t-0 border-border rounded-b-lg p-2 space-y-2 bg-card min-h-[140px]">
-                  {dayJobs.map((job) => (
-                    <Link
-                      key={job.id}
-                      to={`/JobDetail?id=${job.id}`}
-                      className="block p-2 rounded-lg bg-muted/60 hover:bg-muted transition-colors border border-border/50"
-                    >
-                      <p className="text-xs font-medium truncate">
-                        {job.contact_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">
-                        {job.scheduled_time_start || ""}{" "}
-                        {job.job_type?.replace(/_/g, " ")}
-                      </p>
-                      {job.assigned_technician && (
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">
-                          {job.assigned_technician}
-                        </p>
-                      )}
-                    </Link>
-                  ))}
-                  {dayJobs.length === 0 && (
-                    <p className="text-xs text-muted-foreground text-center py-4">
-                      —
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        {/* Unassigned sidebar */}
+        <div className="w-64 flex-shrink-0">
+          <UnassignedPanel jobs={unassignedJobs} onJobClick={setRescheduleJob} />
         </div>
+      </div>
+
+      {/* Global reschedule dialog (from unassigned panel) */}
+      {rescheduleJob && (
+        <RescheduleDialog
+          job={rescheduleJob}
+          technicians={technicians}
+          onClose={() => setRescheduleJob(null)}
+        />
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 import React from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
-export default function KpiTile({ icon: Icon, label, value, sub, trend, trendLabel, accent = "blue" }) {
+export default function KpiTile({ icon: Icon = () => null, label, value, sub, trend, trendLabel, accent = "blue" }) {
   const accentMap = {
     blue:    { icon: "bg-blue-50 text-blue-600",    border: "border-blue-100" },
     amber:   { icon: "bg-amber-50 text-amber-600",  border: "border-amber-100" },

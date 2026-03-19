@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Globe, Eye, Inbox, Users, Archive, CheckCircle, FileEdit, Pencil } from "lucide-react";
+import { Globe, Eye, Inbox, Users, Archive, CheckCircle, FileEdit, Pencil, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import FormSubmissionsDrawer from "./FormSubmissionsDrawer";
 import EmptyState from "@/components/shared/EmptyState";
 import FormStatusBadge from "./FormStatusBadge.jsx";
+import WebsiteFormPublishPanel from "./WebsiteFormPublishPanel";
 
 export default function WebsiteFormsTab({ templates, submissions, onRefresh }) {
   const [viewingSubs, setViewingSubs] = useState(null);

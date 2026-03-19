@@ -112,6 +112,7 @@ export default function CreateJob() {
       status: "scheduled",
       outcome: "pending",
       enquiry_id: enquiryId || undefined,
+      client_id: enquiry?.client_id || undefined,
     });
   };
 

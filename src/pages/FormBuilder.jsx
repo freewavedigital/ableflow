@@ -101,6 +101,17 @@ export default function FormBuilder() {
     }
   }, [existing]);
 
+  // Load action triggers for this template
+  const { data: triggers = [] } = useQuery({
+    queryKey: ["form-action-triggers", templateId],
+    queryFn: () => base44.entities.FormActionTrigger.filter({ template_id: templateId }),
+    enabled: !!templateId,
+  });
+
+  useEffect(() => {
+    setActionTriggers(triggers);
+  }, [triggers]);
+
   const saveMutation = useMutation({
     mutationFn: (payload) =>
       templateId

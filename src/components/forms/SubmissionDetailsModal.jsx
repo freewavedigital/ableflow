@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { X, Download, FileText } from "lucide-react";
 import { format } from "date-fns";
+import SubmissionPdfExport from "./SubmissionPdfExport";
 
 export default function SubmissionDetailsModal({ submission, template, linkedRecord, onClose }) {
   const statusColors = {
@@ -149,6 +150,11 @@ export default function SubmissionDetailsModal({ submission, template, linkedRec
 
         {/* Footer */}
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-border bg-muted/30 flex-shrink-0">
+          <SubmissionPdfExport
+            submission={submission}
+            template={template}
+            linkedRecord={linkedRecord}
+          />
           <Button size="sm" variant="outline" onClick={downloadJSON}>
             <Download className="w-4 h-4 mr-1" />
             Export JSON

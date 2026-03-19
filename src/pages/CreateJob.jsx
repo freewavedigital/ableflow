@@ -35,6 +35,7 @@ const JOB_TYPES = [
 export default function CreateJob() {
   const params = new URLSearchParams(window.location.search);
   const enquiryId = params.get("enquiry_id");
+  const followUpFromId = params.get("follow_up_from");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { branches } = useBranch();
@@ -65,6 +66,14 @@ export default function CreateJob() {
     enabled: !!enquiryId,
   });
 
+  // Pre-fill from follow-up parent job
+  const { data: parentJob } = useQuery({
+    queryKey: ["job", followUpFromId],
+    queryFn: () => base44.entities.Job.filter({ id: followUpFromId }),
+    select: (d) => d[0],
+    enabled: !!followUpFromId,
+  });
+
   const { data: users = [] } = useQuery({
     queryKey: ["users"],
     queryFn: () => base44.entities.User.list(),
@@ -86,6 +95,24 @@ export default function CreateJob() {
     }
   }, [enquiry]);
 
+  useEffect(() => {
+    if (parentJob) {
+      setForm((f) => ({
+        ...f,
+        job_type: parentJob.job_type || f.job_type,
+        branch_id: parentJob.branch_id || f.branch_id,
+        contact_name: parentJob.contact_name || f.contact_name,
+        contact_phone: parentJob.contact_phone || f.contact_phone,
+        site_address: parentJob.site_address || f.site_address,
+        site_suburb: parentJob.site_suburb || f.site_suburb,
+        access_notes: parentJob.access_notes || f.access_notes,
+        technician_notes: parentJob.technician_notes || f.technician_notes,
+        client_id: parentJob.client_id || f.client_id,
+        site_id: parentJob.site_id || f.site_id,
+      }));
+    }
+  }, [parentJob]);
+
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Job.create(data),
     onSuccess: async (result) => {
@@ -93,6 +120,12 @@ export default function CreateJob() {
         await base44.entities.Enquiry.update(enquiryId, {
           status: "converted_to_job",
           converted_job_id: result.id,
+        });
+      }
+      if (followUpFromId) {
+        // Link follow-up job back to parent
+        await base44.entities.Job.update(followUpFromId, {
+          follow_up_job_id: result.id,
         });
       }
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
@@ -112,7 +145,8 @@ export default function CreateJob() {
       status: "scheduled",
       outcome: "pending",
       enquiry_id: enquiryId || undefined,
-      client_id: enquiry?.client_id || undefined,
+      client_id: enquiry?.client_id || parentJob?.client_id || undefined,
+      site_id: enquiry?.site_id || parentJob?.site_id || undefined,
     });
   };
 

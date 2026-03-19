@@ -184,6 +184,7 @@ export default function AppLayout() {
           {!isTechnician && perms.canManageLeads && (
             <NavGroup label="Forms">
               <NavItem item={{ label: "Forms", path: "/Forms", icon: ClipboardCheck }} isActive={isActive("/Forms")} onClick={close} />
+              <NavItem item={{ label: "Submissions", path: "/FormSubmissions", icon: FileText }} isActive={isActive("/FormSubmissions")} onClick={close} />
             </NavGroup>
           )}
 

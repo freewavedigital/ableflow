@@ -5,30 +5,38 @@ import { useAuth } from "@/lib/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
 import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format, isToday, isBefore, parseISO } from "date-fns";
-import { CheckCircle2, Circle, AlertCircle, Plus, Search } from "lucide-react";
+import { format, isBefore, isToday, parseISO, isAfter, startOfToday } from "date-fns";
+import { AlertCircle, Plus, Search, CheckCircle2, CalendarDays, Bell } from "lucide-react";
 import NewTaskDialog from "@/components/tasks/NewTaskDialog";
+import TaskCard from "@/components/tasks/TaskCard";
 
-const STATUS_COLORS = {
-  pending: "bg-blue-50 text-blue-700 border-blue-200",
-  in_progress: "bg-amber-50 text-amber-700 border-amber-200",
-  completed: "bg-green-50 text-green-700 border-green-200",
-  cancelled: "bg-slate-50 text-slate-500 border-slate-200",
-  overdue: "bg-red-50 text-red-700 border-red-200",
-};
+function groupByDueDate(tasks) {
+  const today = startOfToday();
+  const groups = { overdue: [], today: [], upcoming: [], someday: [] };
+  for (const t of tasks) {
+    if (t._overdue) { groups.overdue.push(t); continue; }
+    if (!t.due_date) { groups.someday.push(t); continue; }
+    const d = parseISO(t.due_date);
+    if (isToday(d)) groups.today.push(t);
+    else groups.upcoming.push(t);
+  }
+  // Sort upcoming by date ascending
+  groups.upcoming.sort((a, b) => a.due_date?.localeCompare(b.due_date));
+  return groups;
+}
 
-const TYPE_LABELS = {
-  follow_up_call: "Follow-up Call",
-  send_email: "Send Email",
-  send_agreement: "Send Agreement",
-  confirm_booking: "Confirm Booking",
-  chase_payment: "Chase Payment",
-  internal_action: "Internal Action",
-  other: "Other",
-};
+function SectionHeader({ label, count, color }) {
+  return (
+    <div className={`flex items-center gap-2 mb-2 mt-5 first:mt-0`}>
+      <span className={`text-xs font-bold uppercase tracking-wider ${color}`}>{label}</span>
+      <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${color} bg-opacity-10`}>
+        {count}
+      </span>
+    </div>
+  );
+}
 
 export default function Tasks() {
   const { user } = useAuth();
@@ -36,18 +44,26 @@ export default function Tasks() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("active");
+  const [assignedFilter, setAssignedFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [showNew, setShowNew] = useState(false);
 
   const { data: tasks = [], isLoading } = useQuery({
-    queryKey: ["tasks", perms.userBranchId],
+    queryKey: ["tasks", perms.userBranchId, assignedFilter],
     queryFn: () => {
       const filter = perms.canManageAllTasks
-        ? perms.branchFilter()
+        ? { ...perms.branchFilter(), ...(assignedFilter !== "all" ? { assigned_to: assignedFilter } : {}) }
         : { assigned_to: user?.email };
       return Object.keys(filter).length
-        ? base44.entities.TaskReminder.filter(filter, "due_date", 100)
-        : base44.entities.TaskReminder.list("due_date", 100);
+        ? base44.entities.TaskReminder.filter(filter, "due_date", 200)
+        : base44.entities.TaskReminder.list("due_date", 200);
     },
+  });
+
+  const { data: staffUsers = [] } = useQuery({
+    queryKey: ["users-list"],
+    queryFn: () => base44.entities.User.list(),
+    enabled: perms.canManageAllTasks,
   });
 
   const completeMutation = useMutation({
@@ -60,38 +76,67 @@ export default function Tasks() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   });
 
-  // Auto-flag overdue
-  const enriched = tasks.map((t) => {
-    if (t.status === "pending" && t.due_date && isBefore(parseISO(t.due_date), new Date()) && !isToday(parseISO(t.due_date))) {
-      return { ...t, status: "overdue" };
-    }
-    return t;
-  });
+  // Enrich with overdue flag
+  const enriched = tasks.map((t) => ({
+    ...t,
+    _overdue:
+      t.status === "pending" &&
+      t.due_date &&
+      isBefore(parseISO(t.due_date), startOfToday()),
+  }));
 
+  // Filter
   const filtered = enriched.filter((t) => {
     const matchesStatus =
-      statusFilter === "all"
-        ? true
-        : statusFilter === "active"
-        ? ["pending", "in_progress", "overdue"].includes(t.status)
-        : t.status === statusFilter;
-    const matchesSearch = !search || t.title?.toLowerCase().includes(search.toLowerCase());
-    return matchesStatus && matchesSearch;
+      statusFilter === "all" ? true
+      : statusFilter === "active" ? ["pending", "in_progress"].includes(t.status)
+      : statusFilter === "overdue" ? t._overdue
+      : t.status === statusFilter;
+    const matchesSearch = !search || t.title?.toLowerCase().includes(search.toLowerCase()) || t.entity_label?.toLowerCase().includes(search.toLowerCase());
+    const matchesType = typeFilter === "all" || t.task_type === typeFilter;
+    return matchesStatus && matchesSearch && matchesType;
   });
 
-  const overdue = filtered.filter((t) => t.status === "overdue").length;
+  const grouped = groupByDueDate(filtered.filter((t) => t.status !== "completed" && t.status !== "cancelled"));
+  const completedFiltered = filtered.filter((t) => t.status === "completed");
+
+  const overdueCount = enriched.filter((t) => t._overdue).length;
+  const todayCount = enriched.filter((t) => t.status === "pending" && t.due_date && isToday(parseISO(t.due_date))).length;
+  const reminderDueCount = enriched.filter((t) => t.status === "pending" && t.reminder_date && !isAfter(parseISO(t.reminder_date), startOfToday())).length;
 
   return (
     <div className="p-4 lg:p-6 max-w-4xl mx-auto">
-      <PageHeader title="Tasks & Reminders" subtitle={overdue > 0 ? `${overdue} overdue` : undefined}>
+      <PageHeader title="Tasks & Reminders" subtitle={`Manage follow-ups, reminders and actions`}>
         <Button size="sm" onClick={() => setShowNew(true)}>
           <Plus className="w-4 h-4" /> New Task
         </Button>
       </PageHeader>
 
+      {/* Summary tiles */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className={`p-3 rounded-xl border ${overdueCount > 0 ? "bg-red-50 border-red-200" : "bg-card border-border"}`}>
+          <p className={`text-2xl font-bold ${overdueCount > 0 ? "text-red-600" : "text-foreground"}`}>{overdueCount}</p>
+          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+            <AlertCircle className="w-3 h-3" /> Overdue
+          </p>
+        </div>
+        <div className="p-3 rounded-xl border bg-card border-border">
+          <p className="text-2xl font-bold text-foreground">{todayCount}</p>
+          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+            <CalendarDays className="w-3 h-3" /> Due Today
+          </p>
+        </div>
+        <div className={`p-3 rounded-xl border ${reminderDueCount > 0 ? "bg-amber-50 border-amber-200" : "bg-card border-border"}`}>
+          <p className={`text-2xl font-bold ${reminderDueCount > 0 ? "text-amber-600" : "text-foreground"}`}>{reminderDueCount}</p>
+          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+            <Bell className="w-3 h-3" /> Reminders Due
+          </p>
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        <div className="relative flex-1 min-w-48">
+        <div className="relative flex-1 min-w-44">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search tasks..."
@@ -101,69 +146,101 @@ export default function Tasks() {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="w-32">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="overdue">Overdue</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="All types" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="follow_up_call">Follow-up Call</SelectItem>
+            <SelectItem value="send_email">Send Email</SelectItem>
+            <SelectItem value="send_agreement">Send Agreement</SelectItem>
+            <SelectItem value="confirm_booking">Confirm Booking</SelectItem>
+            <SelectItem value="chase_payment">Chase Payment</SelectItem>
+            <SelectItem value="schedule_job">Schedule Job</SelectItem>
+            <SelectItem value="internal_action">Internal</SelectItem>
+          </SelectContent>
+        </Select>
+        {perms.canManageAllTasks && (
+          <Select value={assignedFilter} onValueChange={setAssignedFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All staff" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Staff</SelectItem>
+              <SelectItem value={user?.email}>Mine</SelectItem>
+              {staffUsers.map((u) => (
+                <SelectItem key={u.id} value={u.email}>
+                  {u.full_name || u.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
-      {/* Task list */}
+      {/* Content */}
       {isLoading ? (
         <div className="text-center py-12 text-muted-foreground text-sm">Loading...</div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground text-sm">No tasks found</div>
-      ) : (
+      ) : statusFilter === "completed" ? (
         <div className="space-y-2">
-          {filtered.map((task) => (
-            <div
-              key={task.id}
-              className="flex items-start gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-sm transition-shadow"
-            >
-              <button
-                onClick={() => task.status !== "completed" && completeMutation.mutate(task)}
-                className="mt-0.5 flex-shrink-0"
-              >
-                {task.status === "completed" ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                ) : task.status === "overdue" ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : (
-                  <Circle className="w-5 h-5 text-muted-foreground hover:text-primary" />
-                )}
-              </button>
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`font-medium text-sm ${task.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
-                    {task.title}
-                  </span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs border ${STATUS_COLORS[task.status] || STATUS_COLORS.pending}`}>
-                    {task.status}
-                  </span>
-                  {task.task_type && (
-                    <span className="text-xs text-muted-foreground">{TYPE_LABELS[task.task_type] || task.task_type}</span>
-                  )}
-                </div>
-                {task.description && (
-                  <p className="text-xs text-muted-foreground mt-0.5">{task.description}</p>
-                )}
-                <div className="flex flex-wrap gap-3 mt-1 text-xs text-muted-foreground">
-                  {task.due_date && (
-                    <span className={task.status === "overdue" ? "text-red-600 font-medium" : ""}>
-                      Due {format(parseISO(task.due_date), "d MMM yyyy")}
-                    </span>
-                  )}
-                  {task.assigned_to && <span>→ {task.assigned_to}</span>}
-                </div>
+          {completedFiltered.length === 0
+            ? <p className="text-center py-12 text-sm text-muted-foreground">No completed tasks</p>
+            : completedFiltered.map((t) => (
+                <TaskCard key={t.id} task={t} onComplete={completeMutation.mutate} />
+              ))}
+        </div>
+      ) : (
+        <div>
+          {grouped.overdue.length > 0 && (
+            <div>
+              <SectionHeader label="Overdue" count={grouped.overdue.length} color="text-red-600" />
+              <div className="space-y-2">
+                {grouped.overdue.map((t) => <TaskCard key={t.id} task={t} onComplete={completeMutation.mutate} />)}
               </div>
             </div>
-          ))}
+          )}
+          {grouped.today.length > 0 && (
+            <div>
+              <SectionHeader label="Due Today" count={grouped.today.length} color="text-amber-600" />
+              <div className="space-y-2">
+                {grouped.today.map((t) => <TaskCard key={t.id} task={t} onComplete={completeMutation.mutate} />)}
+              </div>
+            </div>
+          )}
+          {grouped.upcoming.length > 0 && (
+            <div>
+              <SectionHeader label="Upcoming" count={grouped.upcoming.length} color="text-blue-600" />
+              <div className="space-y-2">
+                {grouped.upcoming.map((t) => <TaskCard key={t.id} task={t} onComplete={completeMutation.mutate} />)}
+              </div>
+            </div>
+          )}
+          {grouped.someday.length > 0 && (
+            <div>
+              <SectionHeader label="No Due Date" count={grouped.someday.length} color="text-muted-foreground" />
+              <div className="space-y-2">
+                {grouped.someday.map((t) => <TaskCard key={t.id} task={t} onComplete={completeMutation.mutate} />)}
+              </div>
+            </div>
+          )}
+          {filtered.filter((t) => t.status !== "completed").length === 0 && (
+            <div className="text-center py-16">
+              <CheckCircle2 className="w-10 h-10 text-green-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-muted-foreground">All caught up</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">No active tasks match your filters</p>
+            </div>
+          )}
         </div>
       )}
 

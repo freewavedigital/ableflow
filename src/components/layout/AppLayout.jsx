@@ -17,6 +17,7 @@ import {
   Settings2,
   BarChart2,
   ClipboardCheck,
+  MessageSquare,
 } from "lucide-react";
 import BranchSelector from "./BranchSelector";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -158,6 +159,13 @@ export default function AppLayout() {
           {!isTechnician && perms.canManageClients && (
             <NavGroup label="Clients">
               <NavItem item={{ label: "Clients & Sites", path: "/Clients", icon: Users }} isActive={isActive("/Clients")} onClick={close} />
+            </NavGroup>
+          )}
+
+          {/* Communications — admins */}
+          {!isTechnician && (
+            <NavGroup label="Communications">
+              <NavItem item={{ label: "Communications Hub", path: "/Communications", icon: MessageSquare }} isActive={isActive("/Communications")} onClick={close} />
             </NavGroup>
           )}
 

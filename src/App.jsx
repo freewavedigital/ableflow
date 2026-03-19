@@ -27,6 +27,7 @@ import MyJobs from "@/pages/MyJobs";
 import TechJobDetail from "@/pages/TechJobDetail";
 import JobTemplates from "@/pages/JobTemplates";
 import Analytics from "@/pages/Analytics";
+import Forms from "@/pages/Forms";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -69,6 +70,7 @@ const AuthenticatedApp = () => {
           <Route path="/TechJobDetail" element={<TechJobDetail />} />
           <Route path="/JobTemplates" element={<JobTemplates />} />
           <Route path="/Analytics" element={<Analytics />} />
+          <Route path="/Forms" element={<Forms />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

@@ -69,24 +69,6 @@ export default function LeadContactSitePanel({ enquiry, onUpdate }) {
         </CardHeader>
         <CardContent className="space-y-3">
           <EditableRow label="Full Name" value={enquiry.contact_name} onSave={(v) => onUpdate("contact_name", v)} placeholder="Contact name" />
-          <div className="flex items-center justify-between gap-2 group">
-            <div className="min-w-0">
-              <p className="text-[11px] text-muted-foreground">Phone</p>
-              {enquiry.contact_phone ? (
-                <a href={`tel:${enquiry.contact_phone}`} className="text-sm font-medium text-primary hover:underline">
-                  {enquiry.contact_phone}
-                </a>
-              ) : (
-                <p className="text-sm text-muted-foreground/50">Not set</p>
-              )}
-            </div>
-            <button
-              onClick={() => {}}
-              className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-            >
-              <Phone className="w-3 h-3 text-muted-foreground" />
-            </button>
-          </div>
           <EditableRow label="Phone" value={enquiry.contact_phone} onSave={(v) => onUpdate("contact_phone", v)} placeholder="e.g. 0400 000 000" />
           <EditableRow label="Email" value={enquiry.contact_email} onSave={(v) => onUpdate("contact_email", v)} type="email" placeholder="email@example.com" />
           {enquiry.contact_email && (

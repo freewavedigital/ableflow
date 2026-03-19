@@ -76,11 +76,15 @@ export default function WebsiteFormsTab({ templates, submissions, onRefresh }) {
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 flex-shrink-0">
+              <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap">
                 <Button size="sm" variant="outline" asChild>
                   <Link to={`/FormBuilder?id=${t.id}`}>
                     <Pencil className="w-3.5 h-3.5 mr-1" /> Edit
                   </Link>
+                </Button>
+                <Button size="sm" variant="outline" className="text-blue-700 border-blue-200 hover:bg-blue-50"
+                  onClick={() => setPublishingTemplate(t)}>
+                  <Share2 className="w-3.5 h-3.5 mr-1" /> Publish
                 </Button>
                 {subs.length > 0 && (
                   <Button size="sm" variant="outline" onClick={() => setViewingSubs({ template: t, subs })}>

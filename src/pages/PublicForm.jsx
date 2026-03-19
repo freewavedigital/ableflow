@@ -221,8 +221,7 @@ function FieldInput({ field, value, onChange, isRequired, fileUploads, onFileCha
 
 // ── Main public form page ─────────────────────────────────────────
 export default function PublicForm() {
-  const params = new URLSearchParams(window.location.search);
-  const templateId = params.get("id");
+  const { id: templateId } = useParams();
 
   const [template, setTemplate] = useState(null);
   const [loading, setLoading] = useState(true);

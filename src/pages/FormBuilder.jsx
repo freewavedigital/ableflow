@@ -131,6 +131,22 @@ export default function FormBuilder() {
     s.fields.map((f) => ({ ...f, section_id: s.id }))
   );
 
+  const saveTriggers = async () => {
+    if (!templateId) return;
+    try {
+      for (const trigger of actionTriggers) {
+        if (trigger.id) {
+          await base44.entities.FormActionTrigger.update(trigger.id, trigger);
+        } else {
+          await base44.entities.FormActionTrigger.create(trigger);
+        }
+      }
+      toast.success("Actions saved");
+    } catch (err) {
+      toast.error("Failed to save actions");
+    }
+  };
+
   const buildPayload = () => ({
     ...meta,
     logic_rules: logicRules,

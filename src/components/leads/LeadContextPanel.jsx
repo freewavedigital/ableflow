@@ -132,50 +132,7 @@ function FutureLeadPanel({ enquiry, onUpdate }) {
   );
 }
 
-function AgreementPanel({ enquiry, onUpdate }) {
-  const statusColors = {
-    not_sent: "text-slate-500",
-    sent: "text-blue-600",
-    viewed: "text-amber-600",
-    signed: "text-green-600",
-  };
 
-  return (
-    <Card className="border-blue-200 bg-blue-50/50">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2 text-blue-800">
-          <CheckCircle2 className="w-4 h-4" />
-          Service Agreement
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="space-y-1">
-          <Label className="text-xs">Agreement Status</Label>
-          <Select
-            value={enquiry.agreement_status || "not_sent"}
-            onValueChange={(v) => onUpdate("agreement_status", v)}
-          >
-            <SelectTrigger className="bg-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="not_sent">Not Sent</SelectItem>
-              <SelectItem value="sent">Sent to Client</SelectItem>
-              <SelectItem value="viewed">Viewed by Client</SelectItem>
-              <SelectItem value="signed">Signed ✓</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        {enquiry.agreement_status === "signed" && (
-          <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Agreement signed — ready to proceed
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
 
 function ScheduledPanel({ enquiry, onUpdate }) {
   return (

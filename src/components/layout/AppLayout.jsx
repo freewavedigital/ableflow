@@ -14,6 +14,7 @@ import {
   ClipboardList,
   ChevronRight,
   Smartphone,
+  Settings2,
 } from "lucide-react";
 import BranchSelector from "./BranchSelector";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -167,6 +168,13 @@ export default function AppLayout() {
               {perms.canManageInvoices && (
                 <NavItem item={{ label: "Invoices", path: "/Invoices", icon: Receipt }} isActive={isActive("/Invoices")} onClick={close} />
               )}
+            </NavGroup>
+          )}
+
+          {/* Settings — admins only */}
+          {!isTechnician && perms.isAdmin && (
+            <NavGroup label="Settings">
+              <NavItem item={{ label: "Job Templates", path: "/JobTemplates", icon: Settings2 }} isActive={isActive("/JobTemplates")} onClick={close} />
             </NavGroup>
           )}
         </nav>

@@ -180,6 +180,13 @@ export default function AppLayout() {
             </NavGroup>
           )}
 
+          {/* Forms — admin+ */}
+          {!isTechnician && perms.canManageLeads && (
+            <NavGroup label="Forms">
+              <NavItem item={{ label: "Forms", path: "/Forms", icon: ClipboardCheck }} isActive={isActive("/Forms")} onClick={close} />
+            </NavGroup>
+          )}
+
           {/* Settings — head office / managers */}
           {!isTechnician && perms.canManageTemplates && (
             <NavGroup label="Settings">

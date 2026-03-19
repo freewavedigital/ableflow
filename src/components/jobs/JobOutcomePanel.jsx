@@ -1,113 +1,277 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { CheckCircle, FileText, Receipt, RefreshCw, ChevronRight } from "lucide-react";
+import {
+  CheckCircle2,
+  FileText,
+  Receipt,
+  RefreshCw,
+  ChevronRight,
+  AlertCircle,
+  Clock,
+  XCircle,
+  CheckCircle,
+  Lock,
+} from "lucide-react";
 
+/**
+ * Outcome definitions.
+ *
+ * next_status   → what the Job.status becomes when this outcome is finalised
+ * actions       → which follow-on buttons to surface
+ * description   → plain-language explanation shown in the panel
+ */
 const OUTCOMES = [
-  { value: "pending", label: "Pending" },
-  { value: "no_leak_found", label: "No Leak Found" },
-  { value: "leak_identified", label: "Leak Identified" },
-  { value: "repair_quoted", label: "Repair Quoted" },
-  { value: "repair_approved", label: "Repair Approved" },
-  { value: "further_testing", label: "Further Testing Required" },
-  { value: "client_declined", label: "Client Declined" },
-  { value: "monitoring_advised", label: "Monitoring Advised" },
-  { value: "completed_closed", label: "Completed & Closed" },
+  {
+    value: "no_issue_found",
+    label: "No Issue Found",
+    description: "Nothing found requiring further work. Job can be invoiced and closed.",
+    icon: CheckCircle2,
+    iconColor: "text-green-600",
+    next_status: "completed",
+    actions: ["invoice"],
+  },
+  {
+    value: "issue_found_quote_required",
+    label: "Issue Found — Quote Required",
+    description: "Problem identified. A quote must be prepared before repair work can proceed.",
+    icon: FileText,
+    iconColor: "text-amber-600",
+    next_status: "quote_required",
+    actions: ["quote"],
+  },
+  {
+    value: "further_testing_required",
+    label: "Further Testing Required",
+    description: "Inconclusive results. A follow-up visit with additional testing is needed.",
+    icon: Clock,
+    iconColor: "text-blue-600",
+    next_status: "follow_up_required",
+    actions: ["followup_job"],
+  },
+  {
+    value: "follow_up_visit_required",
+    label: "Follow-up Visit Required",
+    description: "A secondary site visit is needed to complete or verify the work.",
+    icon: RefreshCw,
+    iconColor: "text-purple-600",
+    next_status: "follow_up_required",
+    actions: ["followup_job"],
+  },
+  {
+    value: "repair_approved",
+    label: "Repair Work Approved / Needed",
+    description: "Client has approved or repair is clearly required. Create a quote and/or schedule repair job.",
+    icon: AlertCircle,
+    iconColor: "text-orange-600",
+    next_status: "quote_required",
+    actions: ["quote", "followup_job"],
+  },
+  {
+    value: "completed_closed",
+    label: "Closed — No Further Action",
+    description: "Work is done and no further steps are needed. Invoice now if applicable.",
+    icon: Lock,
+    iconColor: "text-slate-600",
+    next_status: "completed",
+    actions: ["invoice"],
+  },
+  {
+    value: "client_declined",
+    label: "Client Declined Further Work",
+    description: "Client was informed but chose not to proceed. Job can be closed.",
+    icon: XCircle,
+    iconColor: "text-red-600",
+    next_status: "closed",
+    actions: [],
+  },
 ];
 
-// Which outcomes suggest which follow-on actions
-const OUTCOME_ACTIONS = {
-  leak_identified: ["quote"],
-  repair_quoted: ["quote"],
-  repair_approved: ["quote", "followup_job"],
-  further_testing: ["followup_job"],
-  no_leak_found: ["invoice"],
-  monitoring_advised: ["invoice"],
-  client_declined: [],
-  completed_closed: ["invoice"],
-};
+export default function JobOutcomePanel({ job, onUpdate, onStatusChange }) {
+  const [selected, setSelected] = useState(job.outcome || null);
+  const [notes, setNotes] = useState(job.outcome_notes || "");
+  const [finalised, setFinalised] = useState(
+    ["completed", "quote_required", "follow_up_required", "invoiced", "closed"].includes(job.status)
+  );
 
-export default function JobOutcomePanel({ job, onUpdate }) {
-  const actions = OUTCOME_ACTIONS[job.outcome] || [];
-  const showPanel = ["completed", "awaiting_review", "follow_up_required", "quote_required", "invoiced", "closed"].includes(job.status);
+  const outcomeConfig = OUTCOMES.find((o) => o.value === selected);
+
+  const handleFinalise = () => {
+    if (!selected || !outcomeConfig) return;
+    onUpdate("outcome", selected);
+    onUpdate("outcome_notes", notes);
+    if (onStatusChange) onStatusChange(outcomeConfig.next_status);
+    setFinalised(true);
+  };
+
+  const handleReset = () => {
+    setFinalised(false);
+  };
+
+  // Already has a linked quote / invoice / follow-up?
+  const hasQuote = !!job.linked_quote_id;
+  const hasInvoice = !!job.linked_invoice_id;
+  const hasFollowUp = !!job.follow_up_job_id;
 
   return (
-    <Card className={showPanel ? "border-primary/20" : ""}>
+    <Card className="border-primary/20">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
           <CheckCircle className="w-4 h-4" />
-          Outcome
+          Job Outcome
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div>
-          <Label className="text-xs">Result</Label>
-          <Select value={job.outcome || "pending"} onValueChange={(v) => onUpdate("outcome", v)}>
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {OUTCOMES.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <CardContent className="space-y-4">
 
-        <div>
-          <Label className="text-xs">Outcome Notes</Label>
-          <Textarea
-            className="mt-1"
-            value={job.outcome_notes || ""}
-            onChange={(e) => onUpdate("outcome_notes", e.target.value)}
-            placeholder="Detail findings, recommendations, or next steps..."
-            rows={3}
-          />
-        </div>
-
-        {/* Contextual follow-on actions */}
-        {actions.length > 0 && (
-          <div className="pt-2 border-t border-border space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">Suggested next actions:</p>
-            <div className="flex flex-wrap gap-2">
-              {actions.includes("quote") && !job.linked_quote_id && (
-                <Link to={`/Quotes?create=1&job_id=${job.id}`}>
-                  <Button size="sm" variant="outline" className="h-8">
-                    <FileText className="w-3.5 h-3.5 mr-1.5" />
-                    Create Quote
-                  </Button>
-                </Link>
-              )}
-              {actions.includes("invoice") && !job.linked_invoice_id && (
-                <Link to={`/Invoices?create=1&job_id=${job.id}`}>
-                  <Button size="sm" variant="outline" className="h-8">
-                    <Receipt className="w-3.5 h-3.5 mr-1.5" />
-                    Create Invoice
-                  </Button>
-                </Link>
-              )}
-              {actions.includes("followup_job") && !job.follow_up_job_id && (
-                <Link to={`/CreateJob?follow_up_from=${job.id}`}>
-                  <Button size="sm" variant="outline" className="h-8">
-                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-                    Create Follow-up Job
-                  </Button>
-                </Link>
-              )}
+        {/* Outcome selector — hidden once finalised */}
+        {!finalised ? (
+          <>
+            <div className="grid gap-2">
+              {OUTCOMES.map((o) => {
+                const Icon = o.icon;
+                const isActive = selected === o.value;
+                return (
+                  <button
+                    key={o.value}
+                    onClick={() => setSelected(o.value)}
+                    className={`w-full text-left rounded-lg border px-3 py-2.5 transition-all ${
+                      isActive
+                        ? "border-primary bg-primary/5 ring-1 ring-primary"
+                        : "border-border bg-card hover:bg-accent/50"
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isActive ? o.iconColor : "text-muted-foreground"}`} />
+                      <div>
+                        <p className={`text-sm font-medium ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                          {o.label}
+                        </p>
+                        {isActive && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{o.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-            {job.linked_quote_id && (
-              <Link to={`/Quotes?id=${job.linked_quote_id}`} className="flex items-center gap-1 text-xs text-primary hover:underline">
-                <FileText className="w-3 h-3" /> View linked quote <ChevronRight className="w-3 h-3" />
-              </Link>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Outcome Notes</Label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Findings, recommendations, or instructions for admin..."
+                rows={3}
+              />
+            </div>
+
+            {outcomeConfig && (
+              <div className="pt-1 border-t border-border">
+                <p className="text-xs text-muted-foreground mb-2">
+                  Finalising will move this job to: <span className="font-semibold text-foreground capitalize">{outcomeConfig.next_status.replace(/_/g, " ")}</span>
+                </p>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={handleFinalise}
+                  disabled={!selected}
+                >
+                  Finalise Outcome
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
             )}
-            {job.linked_invoice_id && (
-              <Link to={`/Invoices?id=${job.linked_invoice_id}`} className="flex items-center gap-1 text-xs text-primary hover:underline">
-                <Receipt className="w-3 h-3" /> View linked invoice <ChevronRight className="w-3 h-3" />
-              </Link>
+          </>
+        ) : (
+          /* ── Finalised state: show outcome + next-action buttons ── */
+          <div className="space-y-3">
+            {outcomeConfig && (
+              <div className={`flex items-start gap-2.5 rounded-lg border p-3 bg-muted/30`}>
+                <outcomeConfig.icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${outcomeConfig.iconColor}`} />
+                <div>
+                  <p className="text-sm font-semibold">{outcomeConfig.label}</p>
+                  {notes && <p className="text-xs text-muted-foreground mt-0.5">{notes}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* Next-action buttons */}
+            {outcomeConfig?.actions?.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Suggested next steps:</p>
+                <div className="flex flex-wrap gap-2">
+                  {outcomeConfig.actions.includes("quote") && (
+                    hasQuote ? (
+                      <Link to={`/Quotes?id=${job.linked_quote_id}`}>
+                        <Button size="sm" variant="outline" className="h-8 text-xs">
+                          <FileText className="w-3.5 h-3.5 mr-1.5" />
+                          View Quote
+                          <ChevronRight className="w-3 h-3 ml-1" />
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link to={`/Quotes?create=1&job_id=${job.id}`}>
+                        <Button size="sm" variant="outline" className="h-8 text-xs">
+                          <FileText className="w-3.5 h-3.5 mr-1.5" />
+                          Create Quote
+                        </Button>
+                      </Link>
+                    )
+                  )}
+
+                  {outcomeConfig.actions.includes("invoice") && (
+                    hasInvoice ? (
+                      <Link to={`/Invoices?id=${job.linked_invoice_id}`}>
+                        <Button size="sm" variant="outline" className="h-8 text-xs">
+                          <Receipt className="w-3.5 h-3.5 mr-1.5" />
+                          View Invoice
+                          <ChevronRight className="w-3 h-3 ml-1" />
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link to={`/Invoices?create=1&job_id=${job.id}`}>
+                        <Button size="sm" variant="outline" className="h-8 text-xs">
+                          <Receipt className="w-3.5 h-3.5 mr-1.5" />
+                          Create Invoice
+                        </Button>
+                      </Link>
+                    )
+                  )}
+
+                  {outcomeConfig.actions.includes("followup_job") && (
+                    hasFollowUp ? (
+                      <Link to={`/JobDetail?id=${job.follow_up_job_id}`}>
+                        <Button size="sm" variant="outline" className="h-8 text-xs">
+                          <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                          View Follow-up
+                          <ChevronRight className="w-3 h-3 ml-1" />
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link to={`/CreateJob?follow_up_from=${job.id}`}>
+                        <Button size="sm" variant="outline" className="h-8 text-xs">
+                          <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                          Create Follow-up Job
+                        </Button>
+                      </Link>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Allow re-editing if job isn't fully closed */}
+            {!["invoiced", "closed", "cancelled"].includes(job.status) && (
+              <button
+                onClick={handleReset}
+                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
+              >
+                Change outcome
+              </button>
             )}
           </div>
         )}

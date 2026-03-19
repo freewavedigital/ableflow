@@ -120,7 +120,7 @@ export default function JobDetail() {
           </Card>
 
           {/* Outcome — always visible, more prominent post-completion */}
-          <JobOutcomePanel job={job} onUpdate={handleUpdate} />
+          <JobOutcomePanel job={job} onUpdate={handleUpdate} onStatusChange={handleStatusChange} />
 
           {/* Media */}
           <JobMediaPanel job={job} onUpdate={handleUpdate} />

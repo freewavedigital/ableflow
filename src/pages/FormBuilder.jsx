@@ -48,12 +48,13 @@ export default function FormBuilder() {
   const templateId = params.get("id");
   const defaultType = params.get("type") || "website";
 
+  // State management
   const [meta, setMeta] = useState({ ...DEFAULT_META, form_type: defaultType });
   const [sections, setSections] = useState([makeSection("Section 1")]);
   const [selectedField, setSelectedField] = useState(null);
   const [logicRules, setLogicRules] = useState([]);
   const [actionTriggers, setActionTriggers] = useState([]);
-  const [builderTab, setBuilderTab] = useState("fields"); // fields | actions
+  const [activeTab, setActiveTab] = useState("fields");
 
   // Load existing template
   const { data: existing, isLoading } = useQuery({
@@ -62,6 +63,7 @@ export default function FormBuilder() {
     enabled: !!templateId,
   });
 
+  // Load template data when it exists
   useEffect(() => {
     if (existing && existing.length > 0) {
       const t = existing[0];
@@ -82,7 +84,7 @@ export default function FormBuilder() {
         redirect_url: t.redirect_url || "",
         spam_protection: !!t.spam_protection,
       });
-      // Restore sections from stored sections array on the template
+
       if (t.sections && t.sections.length > 0) {
         setSections(
           t.sections.map((s) => ({
@@ -95,13 +97,14 @@ export default function FormBuilder() {
           }))
         );
       }
+
       if (t.logic_rules && t.logic_rules.length > 0) {
         setLogicRules(t.logic_rules);
       }
     }
   }, [existing]);
 
-  // Load action triggers for this template
+  // Load action triggers
   const { data: triggers = [] } = useQuery({
     queryKey: ["form-action-triggers", templateId],
     queryFn: () => base44.entities.FormActionTrigger.filter({ template_id: templateId }),
@@ -112,6 +115,7 @@ export default function FormBuilder() {
     setActionTriggers(triggers);
   }, [triggers]);
 
+  // Save mutation
   const saveMutation = useMutation({
     mutationFn: (payload) =>
       templateId
@@ -126,7 +130,6 @@ export default function FormBuilder() {
     },
   });
 
-  // Flat list of all fields across all sections for logic rule editor
   const allFields = sections.flatMap((s) =>
     s.fields.map((f) => ({ ...f, section_id: s.id }))
   );
@@ -171,16 +174,19 @@ export default function FormBuilder() {
   });
 
   const handleSave = () => {
-    if (!meta.name.trim()) { toast.error("Please enter a form name"); return; }
+    if (!meta.name.trim()) {
+      toast.error("Please enter a form name");
+      return;
+    }
     saveMutation.mutate(buildPayload());
   };
 
-  // ── Section operations ─────────────────────────────
+  // Section operations
   const addSection = () => setSections((prev) => [...prev, makeSection(`Section ${prev.length + 1}`)]);
   const updateSection = (updated) => setSections((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
   const deleteSection = (id) => setSections((prev) => prev.filter((s) => s.id !== id));
 
-  // ── Field operations ───────────────────────────────
+  // Field operations
   const addField = (sectionId, type, label) => {
     const field = makeField(type, label);
     setSections((prev) =>
@@ -191,7 +197,10 @@ export default function FormBuilder() {
 
   const addFieldFromPalette = (type) => {
     const targetId = sections.length > 0 ? sections[sections.length - 1].id : null;
-    if (!targetId) { addSection(); return; }
+    if (!targetId) {
+      addSection();
+      return;
+    }
     addField(targetId, type);
   };
 
@@ -225,7 +234,7 @@ export default function FormBuilder() {
     );
   };
 
-  // ── Drag and drop ──────────────────────────────────
+  // Drag and drop
   const handleDragEnd = useCallback((result) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -253,7 +262,7 @@ export default function FormBuilder() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-background">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
@@ -261,7 +270,7 @@ export default function FormBuilder() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
-      {/* Top bar */}
+      {/* Header */}
       <header className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card flex-shrink-0">
         <button onClick={() => navigate("/Forms")} className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" />
@@ -281,17 +290,17 @@ export default function FormBuilder() {
         </div>
       </header>
 
-      {/* Form details */}
+      {/* Form Details */}
       <div className="px-4 py-3 border-b border-border bg-card/50 flex-shrink-0">
         <FormDetailsPanel meta={meta} onUpdate={setMeta} />
       </div>
 
-      {/* Tab selector */}
-      <div className="flex items-center gap-1 px-4 py-2 border-b border-border bg-muted/30 flex-shrink-0">
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-border bg-muted/30 flex-shrink-0">
         <button
-          onClick={() => setBuilderTab("fields")}
+          onClick={() => setActiveTab("fields")}
           className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-            builderTab === "fields"
+            activeTab === "fields"
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground"
           }`}
@@ -299,14 +308,9 @@ export default function FormBuilder() {
           Fields & Logic
         </button>
         <button
-          onClick={() => {
-            setBuilderTab("actions");
-            if (templateId && actionTriggers.length === 0) {
-              // Pre-load triggers if not already loaded
-            }
-          }}
+          onClick={() => setActiveTab("actions")}
           className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-            builderTab === "actions"
+            activeTab === "actions"
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground"
           }`}
@@ -315,12 +319,11 @@ export default function FormBuilder() {
         </button>
       </div>
 
-      {/* Builder area */}
+      {/* Content Area */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        {builderTab === "fields" ? (
+        {activeTab === "fields" ? (
           <>
             <FieldPalette onAdd={addFieldFromPalette} />
-
             <BuilderCanvas
               sections={sections}
               selectedFieldId={selectedField?.id}
@@ -334,7 +337,6 @@ export default function FormBuilder() {
               onDragEnd={handleDragEnd}
               logicRules={logicRules}
             />
-
             <FieldConfig
               field={selectedField}
               onUpdate={updateField}

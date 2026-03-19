@@ -2,23 +2,27 @@ import React from "react";
 import {
   Type, AlignLeft, ChevronDown, CheckSquare, Circle,
   Calendar, MapPin, Paperclip, Image, PenLine, EyeOff,
-  Heading, Minus,
+  Heading, Minus, ToggleLeft, Video, Phone, Mail, Hash, Package,
 } from "lucide-react";
 
 export const FIELD_TYPES = [
-  { type: "text",        label: "Text",         icon: Type,         group: "Basic" },
-  { type: "textarea",    label: "Long Text",     icon: AlignLeft,    group: "Basic" },
-  { type: "select",      label: "Dropdown",      icon: ChevronDown,  group: "Basic" },
-  { type: "checkbox",    label: "Checkbox",      icon: CheckSquare,  group: "Basic" },
-  { type: "radio",       label: "Radio",         icon: Circle,       group: "Basic" },
-  { type: "date",        label: "Date",          icon: Calendar,     group: "Basic" },
-  { type: "address",     label: "Address",       icon: MapPin,       group: "Advanced" },
-  { type: "file",        label: "File Upload",   icon: Paperclip,    group: "Advanced" },
-  { type: "photo",       label: "Image Upload",  icon: Image,        group: "Advanced" },
-  { type: "signature",   label: "Signature",     icon: PenLine,      group: "Advanced" },
-  { type: "hidden",      label: "Hidden Field",  icon: EyeOff,       group: "Advanced" },
-  { type: "heading",     label: "Heading",       icon: Heading,      group: "Layout" },
-  { type: "divider",     label: "Divider",       icon: Minus,        group: "Layout" },
+  { type: "text",        label: "Text",          icon: Type,         group: "Basic" },
+  { type: "textarea",    label: "Long Text",      icon: AlignLeft,    group: "Basic" },
+  { type: "number",      label: "Number",         icon: Hash,         group: "Basic" },
+  { type: "select",      label: "Dropdown",       icon: ChevronDown,  group: "Basic" },
+  { type: "checkbox",    label: "Checkbox",       icon: CheckSquare,  group: "Basic" },
+  { type: "date",        label: "Date",           icon: Calendar,     group: "Basic" },
+  { type: "email",       label: "Email",          icon: Mail,         group: "Basic" },
+  { type: "phone",       label: "Phone",          icon: Phone,        group: "Basic" },
+  { type: "yes_no",      label: "Yes / No",       icon: ToggleLeft,   group: "Basic" },
+  { type: "pass_fail",   label: "Pass / Fail",    icon: CheckSquare,  group: "Basic" },
+  { type: "photo",       label: "Photo Upload",   icon: Image,        group: "Advanced" },
+  { type: "video",       label: "Video Link",     icon: Video,        group: "Advanced" },
+  { type: "file",        label: "File Upload",    icon: Paperclip,    group: "Advanced" },
+  { type: "signature",   label: "Signature",      icon: PenLine,      group: "Advanced" },
+  { type: "heading",     label: "Heading",        icon: Heading,      group: "Layout" },
+  { type: "paragraph",   label: "Paragraph",      icon: AlignLeft,    group: "Layout" },
+  { type: "divider",     label: "Divider",        icon: Minus,        group: "Layout" },
 ];
 
 const GROUPS = ["Basic", "Advanced", "Layout"];

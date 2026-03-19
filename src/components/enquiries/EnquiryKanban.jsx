@@ -9,9 +9,11 @@ const STAGES = [
   { key: "contact_attempted", label: "Contact Attempted" },
   { key: "contact_made", label: "Contact Made" },
   { key: "awaiting_info", label: "Awaiting Info" },
+  { key: "future_lead", label: "Future Lead" },
   { key: "tentative_dates", label: "Tentative Dates" },
   { key: "agreement_sent", label: "Agreement Sent" },
   { key: "ready_to_schedule", label: "Ready to Schedule" },
+  { key: "scheduled", label: "Scheduled" },
 ];
 
 function KanbanCard({ enquiry }) {

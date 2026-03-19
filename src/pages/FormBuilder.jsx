@@ -5,7 +5,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Loader2, Eye } from "lucide-react";
 import { toast } from "sonner";
-import { nanoid } from "@/utils";
+
+const nanoid = (len = 8) => Math.random().toString(36).slice(2, 2 + len);
 
 import FieldPalette from "@/components/formbuilder/FieldPalette";
 import BuilderCanvas from "@/components/formbuilder/BuilderCanvas";

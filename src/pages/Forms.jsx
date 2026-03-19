@@ -5,13 +5,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import { Globe, Briefcase, FileSignature, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import EnquiryFormsTab from "@/components/forms/EnquiryFormsTab";
+import WebsiteFormsTab from "@/components/forms/WebsiteFormsTab";
 import JobFormsTab from "@/components/forms/JobFormsTab";
 import AgreementFormsTab from "@/components/forms/AgreementFormsTab";
 import NewFormTemplateDialog from "@/components/forms/NewFormTemplateDialog";
 
 export default function Forms() {
-  const [tab, setTab] = useState("enquiry");
+  const [tab, setTab] = useState("website");
   const [showNew, setShowNew] = useState(false);
 
   const { data: templates = [], refetch } = useQuery({
@@ -19,16 +19,17 @@ export default function Forms() {
     queryFn: () => base44.entities.FormTemplate.list("-created_date", 200),
   });
 
-  const { data: submissions = [], refetch: refetchSubs } = useQuery({
+  const { data: submissions = [] } = useQuery({
     queryKey: ["form-submission-records"],
     queryFn: () => base44.entities.FormSubmissionRecord.list("-submitted_date", 500),
   });
 
-  const enquiryTemplates = templates.filter((t) => t.form_type === "enquiry");
+  // Support legacy "enquiry" form_type during migration
+  const websiteTemplates = templates.filter((t) => t.form_type === "website" || t.form_type === "enquiry");
   const jobTemplates = templates.filter((t) => t.form_type === "job");
   const agreementTemplates = templates.filter((t) => t.form_type === "agreement");
 
-  const enquirySubs = submissions.filter((s) => s.form_type === "enquiry");
+  const websiteSubs = submissions.filter((s) => s.form_type === "website" || s.form_type === "enquiry");
   const jobSubs = submissions.filter((s) => s.form_type === "job");
   const agreementSubs = submissions.filter((s) => s.form_type === "agreement");
 
@@ -38,7 +39,7 @@ export default function Forms() {
     <div className="p-4 lg:p-6 max-w-screen-xl mx-auto">
       <PageHeader
         title="Forms"
-        subtitle="Manage enquiry forms, job inspection forms, and agreement templates"
+        subtitle="Manage website lead forms, job inspection forms, and agreement templates"
       >
         <Button size="sm" onClick={() => setShowNew(true)}>
           <Plus className="w-4 h-4 mr-1" /> New Template
@@ -47,12 +48,12 @@ export default function Forms() {
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-6">
-          <TabsTrigger value="enquiry" className="flex items-center gap-2">
+          <TabsTrigger value="website" className="flex items-center gap-2">
             <Globe className="w-4 h-4" />
-            Enquiry Forms
-            {enquiryTemplates.length > 0 && (
+            Website Forms
+            {websiteTemplates.length > 0 && (
               <span className="ml-1 px-1.5 py-0.5 text-[10px] font-semibold bg-primary/10 text-primary rounded-full">
-                {enquiryTemplates.length}
+                {websiteTemplates.length}
               </span>
             )}
           </TabsTrigger>
@@ -76,10 +77,10 @@ export default function Forms() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="enquiry">
-          <EnquiryFormsTab
-            templates={enquiryTemplates}
-            submissions={enquirySubs}
+        <TabsContent value="website">
+          <WebsiteFormsTab
+            templates={websiteTemplates}
+            submissions={websiteSubs}
             onRefresh={refetch}
           />
         </TabsContent>

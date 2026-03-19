@@ -269,6 +269,7 @@ export default function FormBuilder() {
           onDeleteField={deleteField}
           onDuplicateField={duplicateField}
           onDragEnd={handleDragEnd}
+          logicRules={logicRules}
         />
 
         <FieldConfig

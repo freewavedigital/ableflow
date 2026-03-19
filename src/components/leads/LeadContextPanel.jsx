@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "react-router-dom";
 import { Calendar, Clock, AlertTriangle, CheckCircle2, ChevronRight, Bell } from "lucide-react";
+import AgreementPanel from "@/components/shared/AgreementPanel";
 import { format } from "date-fns";
 
 /**
@@ -29,9 +30,20 @@ export default function LeadContextPanel({ enquiry, onUpdate }) {
         <FutureLeadPanel enquiry={enquiry} onUpdate={onUpdate} />
       )}
 
-      {/* Agreement — shown when agreement_sent or beyond */}
+      {/* Agreement — shown from agreement_sent stage onwards */}
       {["agreement_sent", "ready_to_schedule", "scheduled"].includes(status) && (
-        <AgreementPanel enquiry={enquiry} onUpdate={onUpdate} />
+        <AgreementPanel
+          entityType="lead"
+          entityId={id}
+          context={{
+            clientName: enquiry.contact_name,
+            siteAddress: [enquiry.site_address, enquiry.site_suburb].filter(Boolean).join(", "),
+            serviceType: enquiry.service_type,
+            branchId: enquiry.branch_id,
+            clientId: enquiry.client_id,
+            siteId: enquiry.site_id,
+          }}
+        />
       )}
 
       {/* Scheduled — show confirmed booking window */}

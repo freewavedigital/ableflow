@@ -124,6 +124,9 @@ export default function JobDetail() {
           {/* Outcome — always visible, more prominent post-completion */}
           <JobOutcomePanel job={job} onUpdate={handleUpdate} onStatusChange={handleStatusChange} />
 
+          {/* Job Form Submission */}
+          <JobFormPanel job={job} />
+
           {/* Media */}
           <JobMediaPanel job={job} onUpdate={handleUpdate} />
 

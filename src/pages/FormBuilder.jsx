@@ -90,6 +90,9 @@ export default function FormBuilder() {
           }))
         );
       }
+      if (t.logic_rules && t.logic_rules.length > 0) {
+        setLogicRules(t.logic_rules);
+      }
     }
   }, [existing]);
 

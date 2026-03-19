@@ -8,6 +8,7 @@ import {
   FileText,
   Bell,
   Share2,
+  Zap,
   ChevronRight,
 } from "lucide-react";
 
@@ -18,9 +19,10 @@ const NAV_ITEMS = [
   { label: "Job Forms", path: "/Forms?type=job", icon: Briefcase },
   { label: "Agreements", path: "/Forms?type=agreement", icon: FileSignature },
   { divider: true, label: "Management" },
-  { label: "Templates", path: "/Forms?tab=templates", icon: FileText },
+  { label: "Automation", path: "/Forms?tab=automation", icon: Zap },
   { label: "Submissions", path: "/FormSubmissions", icon: FileText },
-  { divider: true, label: "Actions" },
+  { label: "Templates", path: "/Forms?tab=templates", icon: FileText },
+  { divider: true, label: "Settings" },
   { label: "Notifications", path: "/Forms?tab=notifications", icon: Bell },
   { label: "Embed & Publish", path: "/Forms?tab=embed", icon: Share2 },
 ];

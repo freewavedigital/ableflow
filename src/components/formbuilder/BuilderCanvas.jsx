@@ -44,6 +44,7 @@ export default function BuilderCanvas({
                           onAddField={onAddField}
                           onDeleteField={onDeleteField}
                           onDuplicateField={onDuplicateField}
+                          logicRules={logicRules}
                         />
                       </div>
                     </div>

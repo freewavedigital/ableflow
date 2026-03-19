@@ -123,9 +123,10 @@ export default function CallDetailView({ callRecord, commRecord, onClose }) {
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {activeTab === "details" && (
           <>
-            {!recording && <CallAudioUpload callRecord={callRecord} onUploaded={() => setActiveTab("audio")} />
-        {/* Metadata */}
-        <div className="grid grid-cols-2 gap-4">
+            {!recording && <CallAudioUpload callRecord={callRecord} onUploaded={() => setActiveTab("audio")} />}
+
+            {/* Metadata */}
+            <div className="grid grid-cols-2 gap-4">
           <div className="bg-card border border-border rounded-lg p-3">
             <p className="text-xs font-semibold text-muted-foreground mb-1">Direction</p>
             <p className="text-sm font-medium capitalize">{commRecord.direction}</p>
@@ -145,21 +146,21 @@ export default function CallDetailView({ callRecord, commRecord, onClose }) {
               <p className="text-xs font-semibold text-muted-foreground mb-1">Outcome</p>
               <p className="text-sm font-medium capitalize">{callRecord.outcome}</p>
             </div>
-          )}
-        </div>
+            )}
+            </div>
 
-        {/* Linking Info */}
-        {commRecord.entity_id && (
+                {/* Linking Info */}
+            {commRecord.entity_id && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-xs font-semibold text-blue-900 mb-1">Linked To</p>
             <p className="text-sm text-blue-800 capitalize">
               {commRecord.entity_type}: {commRecord.entity_id}
             </p>
-          </div>
-        )}
+            </div>
+            )}
 
-        {/* Summary */}
-        <div>
+            {/* Summary */}
+            <div>
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold">Summary</p>
             <Button size="sm" variant="ghost" onClick={() => setIsEditing(!isEditing)}>
@@ -193,8 +194,8 @@ export default function CallDetailView({ callRecord, commRecord, onClose }) {
             <div className="bg-muted/30 rounded-lg p-3 text-sm">
               {commRecord.notes ? commRecord.notes : <span className="text-muted-foreground italic">No summary</span>}
             </div>
-          )}
-        </div>
+            )}
+            </div>
 
             {/* Tags */}
             {commRecord.tags?.length > 0 && (

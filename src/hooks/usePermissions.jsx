@@ -56,22 +56,22 @@ export function usePermissions() {
     canManageQuotes: isAtLeast("admin"),
 
     // Can view and manage invoices
-    canManageInvoices: isAtLeast("branch_manager"),
+    canManageInvoices: isAtLeast("admin"),
 
     // Can view financial data (totals, invoice status)
-    canViewFinancials: isAtLeast("branch_manager"),
+    canViewFinancials: isAtLeast("admin"),
 
     // Can manage job type templates
-    canManageTemplates: isAtLeast("head_office"),
+    canManageTemplates: isAtLeast("admin"),
 
     // Can manage branch settings
-    canManageBranches: isAtLeast("head_office"),
+    canManageBranches: isAtLeast("admin"),
 
     // Can view all branches (head office only)
-    canViewAllBranches: is("head_office"),
+    canViewAllBranches: isAtLeast("admin"),
 
     // Can manage users and roles
-    canManageUsers: isAtLeast("head_office"),
+    canManageUsers: isAtLeast("admin"),
 
     // Can view communications log
     canViewCommsLog: isAtLeast("admin"),

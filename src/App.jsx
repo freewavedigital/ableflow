@@ -33,6 +33,7 @@ import FormBuilder from "@/pages/FormBuilder";
 import PublicForm from "@/pages/PublicForm";
 import AgreementSign from "@/pages/AgreementSign";
 import FormSubmissions from "@/pages/FormSubmissions";
+import Communications from "@/pages/Communications";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -78,6 +79,7 @@ const AuthenticatedApp = () => {
           <Route path="/Forms" element={<Forms />} />
           <Route path="/FormBuilder" element={<FormBuilder />} />
           <Route path="/FormSubmissions" element={<FormSubmissions />} />
+          <Route path="/Communications" element={<Communications />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

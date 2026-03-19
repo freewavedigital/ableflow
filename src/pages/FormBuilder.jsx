@@ -12,6 +12,7 @@ import FieldPalette from "@/components/formbuilder/FieldPalette";
 import BuilderCanvas from "@/components/formbuilder/BuilderCanvas";
 import FieldConfig from "@/components/formbuilder/FieldConfig";
 import FormDetailsPanel from "@/components/formbuilder/FormDetailsPanel";
+import ActionTriggersPanel from "@/components/formbuilder/ActionTriggersPanel";
 
 const DEFAULT_META = {
   name: "",

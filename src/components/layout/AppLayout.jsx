@@ -171,8 +171,8 @@ export default function AppLayout() {
             </NavGroup>
           )}
 
-          {/* Settings — admins only */}
-          {!isTechnician && perms.isAdmin && (
+          {/* Settings — head office / managers */}
+          {!isTechnician && perms.canManageTemplates && (
             <NavGroup label="Settings">
               <NavItem item={{ label: "Job Templates", path: "/JobTemplates", icon: Settings2 }} isActive={isActive("/JobTemplates")} onClick={close} />
             </NavGroup>

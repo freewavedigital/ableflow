@@ -30,6 +30,7 @@ import Analytics from "@/pages/Analytics";
 import Forms from "@/pages/Forms";
 import FormBuilder from "@/pages/FormBuilder";
 import PublicForm from "@/pages/PublicForm";
+import AgreementSign from "@/pages/AgreementSign";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

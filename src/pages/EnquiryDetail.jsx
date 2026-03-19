@@ -1,52 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  Phone,
-  Mail,
-  MapPin,
-  Calendar,
-  Clock,
-  MessageSquare,
-  Send,
-  ChevronRight,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, Phone, Mail, MapPin, Building2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
+import LeadStagePipeline from "@/components/leads/LeadStagePipeline";
+import LeadContextPanel from "@/components/leads/LeadContextPanel";
+import LeadActivityFeed from "@/components/leads/LeadActivityFeed";
+import LeadPhotoUpload from "@/components/leads/LeadPhotoUpload";
+import LeadTasksSidebar from "@/components/leads/LeadTasksSidebar";
 import { format } from "date-fns";
-
-const STATUSES = [
-  { value: "new_lead", label: "New Lead" },
-  { value: "contact_attempted", label: "Contact Attempted" },
-  { value: "contact_made", label: "Contact Made" },
-  { value: "awaiting_info", label: "Awaiting Info" },
-  { value: "future_lead", label: "Future Lead" },
-  { value: "tentative_dates", label: "Tentative Dates" },
-  { value: "agreement_sent", label: "Agreement Sent" },
-  { value: "ready_to_schedule", label: "Ready to Schedule" },
-  { value: "converted_to_job", label: "Converted to Job" },
-  { value: "lost", label: "Lost" },
-];
 
 export default function EnquiryDetail() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
   const queryClient = useQueryClient();
-  const [noteText, setNoteText] = useState("");
 
   const { data: enquiry, isLoading } = useQuery({
     queryKey: ["enquiry", id],
@@ -72,37 +43,29 @@ export default function EnquiryDetail() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ field, value }) =>
-      base44.entities.Enquiry.update(id, { [field]: value }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["enquiry", id] }),
+    mutationFn: (data) => base44.entities.Enquiry.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["enquiry", id] }),
   });
 
-  const addNoteMutation = useMutation({
-    mutationFn: (content) =>
-      base44.entities.ActivityLog.create({
-        entity_type: "enquiry",
-        entity_id: id,
-        activity_type: "note",
-        title: "Note added",
-        content,
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activities", "enquiry", id] });
-      setNoteText("");
-    },
-  });
+  const handleFieldUpdate = (field, value) => {
+    updateMutation.mutate({ [field]: value });
+  };
 
   const handleStatusChange = (newStatus) => {
-    updateMutation.mutate({ field: "status", value: newStatus });
+    updateMutation.mutate({ status: newStatus });
     base44.entities.ActivityLog.create({
       entity_type: "enquiry",
       entity_id: id,
       activity_type: "status_change",
-      title: `Status changed to ${newStatus.replace(/_/g, " ")}`,
-      content: `Status updated from ${enquiry.status} to ${newStatus}`,
+      title: `Stage → ${newStatus.replace(/_/g, " ")}`,
+      content: `Lead moved from "${enquiry.status.replace(/_/g, " ")}" to "${newStatus.replace(/_/g, " ")}"`,
       metadata: { old_status: enquiry.status, new_status: newStatus },
     });
+  };
+
+  const handleMarkLost = () => {
+    if (enquiry.status === "lost") return;
+    handleStatusChange("lost");
   };
 
   if (isLoading) {
@@ -114,21 +77,19 @@ export default function EnquiryDetail() {
   }
 
   if (!enquiry) {
-    return (
-      <div className="p-6 text-center text-muted-foreground">
-        Enquiry not found
-      </div>
-    );
+    return <div className="p-6 text-center text-muted-foreground">Enquiry not found</div>;
   }
 
   const branchName = branches.find((b) => b.id === enquiry.branch_id)?.name;
+  const isTerminal = ["converted_to_job", "lost"].includes(enquiry.status);
 
   return (
     <div className="p-4 lg:p-6 max-w-6xl mx-auto">
+      {/* Back nav */}
       <div className="mb-4">
         <Link
           to="/Enquiries"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Enquiries
@@ -139,207 +100,103 @@ export default function EnquiryDetail() {
         title={`${enquiry.reference_number || "Enquiry"} — ${enquiry.contact_name}`}
         subtitle={`${enquiry.service_type?.replace(/_/g, " ")} · ${enquiry.source}`}
       >
-        <StatusBadge status={enquiry.status} />
+        <div className="flex items-center gap-2">
+          <StatusBadge status={enquiry.status} />
+          {!isTerminal && (
+            <button
+              onClick={handleMarkLost}
+              className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+            >
+              Mark Lost
+            </button>
+          )}
+        </div>
       </PageHeader>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Status & Actions */}
+        {/* ── Left / Main column ── */}
+        <div className="lg:col-span-2 space-y-5">
+
+          {/* Pipeline */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Pipeline Stage</CardTitle>
+              <CardTitle className="text-sm">Lead Stage</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {STATUSES.map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => handleStatusChange(s.value)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      enquiry.status === s.value
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-accent"
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
+              <LeadStagePipeline
+                currentStatus={enquiry.status}
+                onStageChange={handleStatusChange}
+                disabled={isTerminal}
+              />
             </CardContent>
           </Card>
 
-          {/* Tentative Scheduling */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Tentative Scheduling
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">From Date</Label>
-                  <Input
-                    type="date"
-                    value={enquiry.tentative_date_from || ""}
-                    onChange={(e) =>
-                      updateMutation.mutate({
-                        field: "tentative_date_from",
-                        value: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">To Date</Label>
-                  <Input
-                    type="date"
-                    value={enquiry.tentative_date_to || ""}
-                    onChange={(e) =>
-                      updateMutation.mutate({
-                        field: "tentative_date_to",
-                        value: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="mt-3 space-y-1.5">
-                <Label className="text-xs">Tentative Notes</Label>
-                <Textarea
-                  value={enquiry.tentative_notes || ""}
-                  onChange={(e) =>
-                    updateMutation.mutate({
-                      field: "tentative_notes",
-                      value: e.target.value,
-                    })
-                  }
-                  rows={2}
-                  placeholder="e.g. Client prefers mornings, within next 2 weeks"
-                />
-              </div>
-            </CardContent>
-          </Card>
+          {/* Stage-contextual actions */}
+          <LeadContextPanel
+            enquiry={enquiry}
+            onUpdate={handleFieldUpdate}
+          />
 
           {/* Issue Details */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm">Issue Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 text-sm">
               <div>
                 <Label className="text-xs text-muted-foreground">Summary</Label>
-                <p className="text-sm mt-0.5">
-                  {enquiry.issue_summary || "No summary provided"}
-                </p>
+                <p className="mt-0.5">{enquiry.issue_summary || "No summary provided"}</p>
               </div>
               {enquiry.additional_notes && (
                 <div>
-                  <Label className="text-xs text-muted-foreground">
-                    Additional Notes
-                  </Label>
-                  <p className="text-sm mt-0.5">{enquiry.additional_notes}</p>
+                  <Label className="text-xs text-muted-foreground">Additional Notes</Label>
+                  <p className="mt-0.5">{enquiry.additional_notes}</p>
                 </div>
               )}
-            </CardContent>
-          </Card>
-
-          {/* Activity / Notes */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Activity & Notes
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2 mb-4">
-                <Textarea
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                  placeholder="Add a note..."
-                  rows={2}
-                  className="flex-1"
-                />
-                <Button
-                  size="sm"
-                  disabled={!noteText.trim() || addNoteMutation.isPending}
-                  onClick={() => addNoteMutation.mutate(noteText)}
-                  className="self-end"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {activities.map((act) => (
-                  <div
-                    key={act.id}
-                    className="flex gap-3 p-3 bg-muted/50 rounded-lg"
-                  >
-                    <div className="w-1.5 rounded-full bg-primary/20 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs font-medium">{act.title}</p>
-                        <span className="text-xs text-muted-foreground">
-                          {act.created_date
-                            ? format(new Date(act.created_date), "d MMM, h:mm a")
-                            : ""}
-                        </span>
-                      </div>
-                      {act.content && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {act.content}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {activities.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-4">
-                    No activity yet
-                  </p>
+              <div className="flex gap-4 flex-wrap text-xs text-muted-foreground pt-1 border-t border-border">
+                <span>Property: <strong className="text-foreground capitalize">{enquiry.property_type?.replace(/_/g, " ")}</strong></span>
+                <span>Pool: <strong className="text-foreground capitalize">{enquiry.pool_type?.replace(/_/g, " ")}</strong></span>
+                {enquiry.previous_customer && (
+                  <span className="text-green-700 font-medium">↩ Returning customer</span>
                 )}
               </div>
             </CardContent>
           </Card>
+
+          {/* Activity Feed */}
+          <LeadActivityFeed enquiryId={id} activities={activities} />
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-5">
-          {/* Contact Info */}
+        {/* ── Right / Sidebar ── */}
+        <div className="space-y-4">
+          {/* Contact */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm">Contact</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-2 text-sm">
-                <Phone className="w-4 h-4 text-muted-foreground" />
-                <a
-                  href={`tel:${enquiry.contact_phone}`}
-                  className="text-primary hover:underline"
-                >
+                <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <a href={`tel:${enquiry.contact_phone}`} className="text-primary hover:underline">
                   {enquiry.contact_phone}
                 </a>
               </div>
               {enquiry.contact_email && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Mail className="w-4 h-4 text-muted-foreground" />
-                  <a
-                    href={`mailto:${enquiry.contact_email}`}
-                    className="text-primary hover:underline truncate"
-                  >
+                  <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <a href={`mailto:${enquiry.contact_email}`} className="text-primary hover:underline truncate">
                     {enquiry.contact_email}
                   </a>
                 </div>
               )}
               {enquiry.site_address && (
                 <div className="flex items-start gap-2 text-sm">
-                  <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
+                  <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <span>
                     {enquiry.site_address}
                     {enquiry.site_suburb && `, ${enquiry.site_suburb}`}
+                    {enquiry.site_state && `, ${enquiry.site_state}`}
+                    {enquiry.site_postcode && ` ${enquiry.site_postcode}`}
                   </span>
                 </div>
               )}
@@ -351,80 +208,38 @@ export default function EnquiryDetail() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm">Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Branch</span>
-                <span className="font-medium">{branchName || "—"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Service</span>
-                <span className="font-medium">
-                  {enquiry.service_type?.replace(/_/g, " ")}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Pool Type</span>
-                <span className="font-medium capitalize">
-                  {enquiry.pool_type?.replace(/_/g, " ") || "N/A"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Priority</span>
-                <StatusBadge status={enquiry.priority || "normal"} />
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Source</span>
-                <span className="font-medium capitalize">{enquiry.source}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Created</span>
-                <span className="font-medium">
-                  {enquiry.created_date
-                    ? format(new Date(enquiry.created_date), "d MMM yyyy")
-                    : "—"}
-                </span>
-              </div>
+            <CardContent className="space-y-2.5 text-sm">
+              {[
+                ["Branch", branchName || "—"],
+                ["Service", enquiry.service_type?.replace(/_/g, " ")],
+                ["Source", enquiry.source],
+                ["Priority", <StatusBadge key="p" status={enquiry.priority || "normal"} />],
+                ["Created", enquiry.created_date ? format(new Date(enquiry.created_date), "d MMM yyyy") : "—"],
+                enquiry.assigned_to ? ["Assigned To", enquiry.assigned_to] : null,
+                enquiry.converted_job_id ? ["Job", <Link key="j" to={`/JobDetail?id=${enquiry.converted_job_id}`} className="text-primary hover:underline text-xs">View Job →</Link>] : null,
+              ]
+                .filter(Boolean)
+                .map(([label, value]) => (
+                  <div key={label} className="flex justify-between items-center gap-2">
+                    <span className="text-muted-foreground flex-shrink-0">{label}</span>
+                    <span className="font-medium text-right capitalize">{value}</span>
+                  </div>
+                ))}
             </CardContent>
           </Card>
 
-          {/* Convert to Job */}
-          {enquiry.status === "ready_to_schedule" && (
-            <Card className="border-primary/30 bg-primary/5">
-              <CardContent className="p-4">
-                <p className="text-sm font-medium mb-2">
-                  Ready to convert to a job?
-                </p>
-                <Link to={`/CreateJob?enquiry_id=${id}`}>
-                  <Button size="sm" className="w-full">
-                    Convert to Job
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
+          {/* Tasks */}
+          <LeadTasksSidebar enquiryId={id} />
 
-          {/* Lost reason */}
-          {enquiry.status === "lost" && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Lost Reason</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={enquiry.lost_reason || ""}
-                  onChange={(e) =>
-                    updateMutation.mutate({
-                      field: "lost_reason",
-                      value: e.target.value,
-                    })
-                  }
-                  placeholder="Why was this lead lost?"
-                  rows={3}
-                />
-              </CardContent>
-            </Card>
-          )}
+          {/* Photos */}
+          <LeadPhotoUpload
+            enquiry={enquiry}
+            onPhotosUpdated={(urls) => {
+              queryClient.setQueryData(["enquiry", id], (old) =>
+                old ? [{ ...old[0], photo_urls: urls }] : old
+              );
+            }}
+          />
         </div>
       </div>
     </div>

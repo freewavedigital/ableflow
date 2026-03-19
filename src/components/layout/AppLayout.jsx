@@ -124,8 +124,8 @@ export default function AppLayout() {
           {/* Overview — everyone */}
           <NavItem item={{ label: "Dashboard", path: "/Dashboard", icon: LayoutDashboard }} isActive={isActive("/Dashboard")} onClick={close} />
 
-          {/* Technician fast-access */}
-          {isTechnician && (
+          {/* My Jobs — Technicians & Admins */}
+          {(isTechnician || user?.role === 'admin') && (
             <NavGroup label="My Jobs">
               <NavItem item={{ label: "My Jobs", path: "/MyJobs", icon: Smartphone }} isActive={isActive("/MyJobs")} onClick={close} />
               <NavItem item={{ label: "Tasks", path: "/Tasks", icon: ClipboardList }} isActive={isActive("/Tasks")} onClick={close} />

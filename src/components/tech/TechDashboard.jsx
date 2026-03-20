@@ -378,6 +378,7 @@ export default function TechDashboard({ user }) {
                 key={job.id}
                 job={job}
                 onStatusUpdate={(id, status) => statusMutation.mutate({ id, status })}
+                onRefresh={() => queryClient.invalidateQueries({ queryKey: ["my-jobs", user?.email] })}
               />
             ))}
           </div>

@@ -64,16 +64,39 @@ function getTimeOfDay() {
   return "evening";
 }
 
+function interpolate(content, job) {
+  return content
+    .replace(/\{\{customer_name\}\}/g, job.contact_name || "there")
+    .replace(/\{\{contact_name\}\}/g, job.contact_name || "there")
+    .replace(/\{\{job_type\}\}/g, (job.job_type || "service").replace(/_/g, " "))
+    .replace(/\{\{site_address\}\}/g, job.site_address || "your property")
+    .replace(/\{\{job_number\}\}/g, job.job_number || "");
+}
+
 // ── Quick Comms Sheet ─────────────────────────────────────────────────────
 function QuickCommsDialog({ job, open, onClose }) {
   const [sent, setSent] = useState(null);
   const [sending, setSending] = useState(false);
 
+  const { data: templates = [] } = useQuery({
+    queryKey: ["comm-templates-sms"],
+    queryFn: () => base44.entities.CommunicationTemplate.filter({ template_type: "sms", status: "active" }),
+    staleTime: 5 * 60 * 1000,
+  });
+
   if (!job) return null;
+
+  // Resolve message from admin templates, fall back to hardcoded
+  function resolveMessage(key, fallbackBuild) {
+    const match = templates.find(t => (t.tags || []).includes(key) || t.template_key === key);
+    return match?.content ? interpolate(match.content, job) : fallbackBuild(job);
+  }
+
+  const quickSMS = QUICK_SMS_FALLBACKS.map(t => ({ ...t, resolvedMessage: resolveMessage(t.key, t.build) }));
 
   const handleSendSMS = async (template) => {
     setSending(template.key);
-    const message = template.build(job);
+    const message = template.resolvedMessage;
     // Log SMS to SMSMessage entity
     await base44.entities.SMSMessage.create({
       entity_type: "job",

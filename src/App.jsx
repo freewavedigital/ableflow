@@ -38,6 +38,7 @@ import FormSubmissions from "@/pages/FormSubmissions";
 import Communications from "@/pages/Communications";
 import SMSAutomation from "@/pages/SMSAutomation";
 import CommunicationTemplates from "@/pages/CommunicationTemplates";
+import CommunicationTriggers from "@/pages/CommunicationTriggers";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
           <Route path="/Communications" element={<Communications />} />
           <Route path="/SMSAutomation" element={<SMSAutomation />} />
           <Route path="/CommunicationTemplates" element={<CommunicationTemplates />} />
+          <Route path="/CommunicationTriggers" element={<CommunicationTriggers />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

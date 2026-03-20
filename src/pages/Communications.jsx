@@ -250,126 +250,23 @@ export default function Communications() {
 
       {/* Timeline */}
       <div className="flex-1 overflow-auto px-6 py-6">
-        {allCommunications.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <MessageSquare className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">No communications found</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Communications will appear here as you log calls, send SMS, and emails
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="max-w-4xl mx-auto space-y-3">
-            {allCommunications.map((comm) => {
-              const Icon = CHANNEL_ICONS[comm.channel];
-              return (
-                <div
-                  key={`${comm.channel}-${comm.id}`}
-                  className="bg-card border border-border rounded-lg p-4 hover:border-primary/50 transition-colors"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 mt-1">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Icon className="w-4 h-4 text-primary" />
-                      </div>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2 flex-wrap">
-                        <h3 className="font-semibold text-sm">
-                          {comm.channel === "phone" && `Call with ${comm.phone_number}`}
-                          {comm.channel === "sms" && `SMS to ${comm.phone_number}`}
-                          {comm.channel === "email" && `Email: ${comm.subject}`}
-                        </h3>
-                        <span className="text-xs text-muted-foreground">
-                          {comm.direction === "inbound" ? "↓ Received" : "↑ Sent"}
-                        </span>
-                      </div>
-
-                      <p className="text-xs text-muted-foreground mt-1">{getEntityLabel(comm)}</p>
-
-                      {comm.channel === "phone" && (
-                        <div className="mt-2 text-xs text-muted-foreground space-y-1">
-                          {comm.duration_seconds && (
-                            <p>Duration: {Math.round(comm.duration_seconds / 60)} min</p>
-                          )}
-                          {comm.status !== "completed" && <p>Status: {comm.status}</p>}
-                          {comm.outcome && <p>Outcome: {comm.outcome}</p>}
-                          {comm.notes && <p className="text-foreground/70">{comm.notes}</p>}
-                        </div>
-                      )}
-
-                      {comm.channel === "sms" && (
-                        <div className="mt-2 text-sm text-foreground/80 bg-muted/30 rounded px-2 py-1.5">
-                          {comm.content}
-                        </div>
-                      )}
-
-                      {comm.channel === "email" && (
-                        <div className="mt-2 text-xs space-y-1">
-                          <p className="text-muted-foreground">To: {comm.recipient_email}</p>
-                          {comm.status !== "sent" && (
-                            <p className="text-muted-foreground">Status: {comm.status}</p>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                        <span>{format(new Date(comm.timestamp), "MMM d, yyyy HH:mm")}</span>
-                        {comm.tags?.length > 0 && (
-                          <div className="flex gap-1">
-                            {comm.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-1.5 py-0.5 rounded-full text-[10px] bg-primary/10 text-primary"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      {comm.channel === "phone" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="mt-3"
-                          onClick={() => setSelectedCall(comm)}
-                        >
-                          View Details
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div className="max-w-3xl mx-auto">
+          <HubTimeline
+            commRecords={commRecords}
+            callRecords={callRecords}
+            smsMessages={smsMessages}
+            emailMessages={emailMessages}
+            filterChannel={filterChannel}
+            filterEntity={filterEntity}
+            searchQuery={searchQuery}
+            sortBy={sortBy}
+            getEntityLabel={getEntityLabel}
+          />
+        </div>
       </div>
 
       {/* Dialogs */}
       <CallLogger open={showCallLogger} onOpenChange={setShowCallLogger} />
-
-      {selectedCall && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:justify-end">
-          <div className="w-full sm:w-96 bg-background rounded-t-xl sm:rounded-xl shadow-lg sm:mr-6 h-[80vh] sm:h-[90vh] flex flex-col">
-            <CallDetailView
-              callRecord={selectedCall}
-              commRecord={selectedCall.commRecord}
-              onClose={() => setSelectedCall(null)}
-            />
-            <button
-              onClick={() => setSelectedCall(null)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

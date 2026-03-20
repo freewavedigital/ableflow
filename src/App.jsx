@@ -38,6 +38,7 @@ import FormSubmissions from "@/pages/FormSubmissions";
 import Communications from "@/pages/Communications";
 import SMSTemplates from "@/pages/SMSTemplates";
 import SMSAutomation from "@/pages/SMSAutomation";
+import EmailTemplates from "@/pages/EmailTemplates";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
           <Route path="/Communications" element={<Communications />} />
           <Route path="/SMSTemplates" element={<SMSTemplates />} />
           <Route path="/SMSAutomation" element={<SMSAutomation />} />
+          <Route path="/EmailTemplates" element={<EmailTemplates />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

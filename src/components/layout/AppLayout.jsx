@@ -170,6 +170,7 @@ export default function AppLayout() {
                 <>
                   <NavItem item={{ label: "SMS Templates", path: "/SMSTemplates", icon: MessageSquare }} isActive={isActive("/SMSTemplates")} onClick={close} />
                   <NavItem item={{ label: "SMS Automation", path: "/SMSAutomation", icon: MessageSquare }} isActive={isActive("/SMSAutomation")} onClick={close} />
+                  <NavItem item={{ label: "Email Templates", path: "/EmailTemplates", icon: MessageSquare }} isActive={isActive("/EmailTemplates")} onClick={close} />
                 </>
               )}
             </NavGroup>

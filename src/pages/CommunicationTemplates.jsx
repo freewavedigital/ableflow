@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import PageHeader from "@/components/shared/PageHeader";
@@ -215,9 +215,9 @@ function TemplateCard({ template, onEdit, onDelete, onDuplicate }) {
 function TemplateDialog({ open, onClose, editingId, templateType, initialData, onSave, isSaving }) {
   const isEmail = templateType === "email";
   const [form, setForm] = useState(initialData);
-  const activeRef = React.useRef(null); // track which textarea is focused
+  const activeRef = useRef(null); // track which textarea is focused
 
-  React.useEffect(() => {
+  useEffect(() => {
     setForm(initialData);
   }, [initialData, open]);
 

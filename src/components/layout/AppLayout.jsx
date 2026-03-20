@@ -166,7 +166,8 @@ export default function AppLayout() {
           {/* Communications — admins */}
           {!isTechnician && (
             <NavGroup label="Communications">
-              <NavItem item={{ label: "Communications Hub", path: "/Communications", icon: MessageSquare }} isActive={isActive("/Communications")} onClick={close} />
+              <NavItem item={{ label: "Dashboard", path: "/Communications", icon: MessageSquare }} isActive={isActive("/Communications") && !isActive("/CommsFeed") && !isActive("/CommunicationTemplates") && !isActive("/CommunicationTriggers")} onClick={close} />
+              <NavItem item={{ label: "All Activity", path: "/CommsFeed", icon: Phone }} isActive={isActive("/CommsFeed")} onClick={close} />
               {perms.canManageLeads && (
                 <>
                   <NavItem item={{ label: "Templates", path: "/CommunicationTemplates", icon: MessageSquare }} isActive={isActive("/CommunicationTemplates")} onClick={close} />

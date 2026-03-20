@@ -168,9 +168,8 @@ export default function AppLayout() {
               <NavItem item={{ label: "Communications Hub", path: "/Communications", icon: MessageSquare }} isActive={isActive("/Communications")} onClick={close} />
               {perms.canManageLeads && (
                 <>
-                  <NavItem item={{ label: "SMS Templates", path: "/SMSTemplates", icon: MessageSquare }} isActive={isActive("/SMSTemplates")} onClick={close} />
-                  <NavItem item={{ label: "SMS Automation", path: "/SMSAutomation", icon: MessageSquare }} isActive={isActive("/SMSAutomation")} onClick={close} />
-                  <NavItem item={{ label: "Email Templates", path: "/EmailTemplates", icon: MessageSquare }} isActive={isActive("/EmailTemplates")} onClick={close} />
+                  <NavItem item={{ label: "Templates", path: "/CommunicationTemplates", icon: MessageSquare }} isActive={isActive("/CommunicationTemplates")} onClick={close} />
+                  <NavItem item={{ label: "Automation", path: "/SMSAutomation", icon: MessageSquare }} isActive={isActive("/SMSAutomation")} onClick={close} />
                 </>
               )}
             </NavGroup>

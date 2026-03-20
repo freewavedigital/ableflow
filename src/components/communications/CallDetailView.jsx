@@ -226,12 +226,13 @@ export default function CallDetailView({ callRecord, commRecord, onClose }) {
         )}
       </div>
 
-      {/* Panels */}
-      <CallLinkPanel
+      {/* Conversion Panel */}
+      <CallConversionPanel
         open={showLinkPanel}
         onOpenChange={setShowLinkPanel}
         callRecord={callRecord}
-        onLinked={() => setShowLinkPanel(false)}
+        commRecord={commRecord}
+        isUnknownCaller={!commRecord?.entity_id && !commRecord?.client_id}
       />
 
       <CallNoteEditor

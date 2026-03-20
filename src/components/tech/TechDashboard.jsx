@@ -169,10 +169,12 @@ function QuickCommsDialog({ job, open, onClose }) {
 }
 
 // ── Job card (dashboard version) ──────────────────────────────────────────
-function TechJobCard({ job, onStatusUpdate }) {
+function TechJobCard({ job, onStatusUpdate, onRefresh }) {
   const [commsOpen, setCommsOpen] = useState(false);
   const action = STATUS_ACTIONS[job.status];
   const isActive = ["dispatched", "in_progress"].includes(job.status);
+  // Statuses handled by TechQuickActions (lifecycle SMS triggers)
+  const quickActionStatuses = ["scheduled", "dispatched", "in_progress"];
 
   return (
     <>

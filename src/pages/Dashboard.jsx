@@ -141,18 +141,49 @@ export default function Dashboard() {
     ? fJobs.filter((j) => j.assigned_technician === user?.email && ["scheduled", "dispatched", "in_progress"].includes(j.status))
     : [];
 
-  // ── Technician / Admin view ──
-  if (isTechnician || isAdmin) {
-    return <TechDashboard user={user} />;
+  const showViewSwitcher = isAdmin || isTechnician;
+
+  if (activeDashboardView === "technician" && (isAdmin || isTechnician)) {
+    return (
+      <div>
+        {showViewSwitcher && (
+          <div className="p-4 lg:px-6 lg:pt-6 max-w-7xl mx-auto">
+            <Select value={activeDashboardView} onValueChange={setActiveDashboardView}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin Dashboard</SelectItem>
+                <SelectItem value="technician">Tech Dashboard</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        <TechDashboard user={user} />
+      </div>
+    );
   }
 
   // ── Admin / Manager view ──
   return (
     <div className="p-4 lg:p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, d MMMM yyyy")}</p>
+        <div className="flex items-center gap-3">
+          {showViewSwitcher && (
+            <Select value={activeDashboardView} onValueChange={setActiveDashboardView}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin Dashboard</SelectItem>
+                <SelectItem value="technician">Tech Dashboard</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, d MMMM yyyy")}</p>
+          </div>
         </div>
         <Link to="/Enquiries?new=1">
           <Button size="sm">

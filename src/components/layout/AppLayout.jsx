@@ -18,6 +18,7 @@ import {
   BarChart2,
   ClipboardCheck,
   MessageSquare,
+  Zap,
 } from "lucide-react";
 import BranchSelector from "./BranchSelector";
 import { usePermissions } from "@/hooks/usePermissions";

@@ -155,7 +155,6 @@ export default function Communications() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("recent");
   const [showCallLogger, setShowCallLogger] = useState(false);
-  const [selectedCall, setSelectedCall] = useState(null);
 
   // Fetch all communication records
   const { data: commRecords = [], isLoading: loadingComm } = useQuery({

@@ -7,14 +7,14 @@ import { format, isToday, isTomorrow, parseISO } from "date-fns";
 import {
   MapPin, Clock, ChevronRight, CalendarDays, CheckCircle2,
   PlayCircle, Phone, MessageSquare, Navigation, Briefcase,
-  CheckSquare, AlertCircle, Send, X, Loader2,
+  CheckSquare, AlertCircle, Send, Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import StatusBadge from "@/components/shared/StatusBadge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import TechQuickActions from "./TechQuickActions";
 
 // ── Status transition map ─────────────────────────────────────────────────
 const STATUS_ACTIONS = {

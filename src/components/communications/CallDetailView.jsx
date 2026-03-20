@@ -7,7 +7,7 @@ import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import CallLinkPanel from "./CallLinkPanel";
+import CallConversionPanel from "./CallConversionPanel";
 import CallNoteEditor from "./CallNoteEditor";
 import CallAudioUpload from "./CallAudioUpload";
 import CallAudioPlayer from "./CallAudioPlayer";

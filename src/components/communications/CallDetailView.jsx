@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Phone, Edit2, Link2, Trash2, Plus, FileText } from "lucide-react";
+import { Phone, Edit2, Link2, Trash2, Plus, FileText, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

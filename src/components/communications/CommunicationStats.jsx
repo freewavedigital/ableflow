@@ -2,7 +2,7 @@ import React from "react";
 import { Phone, MessageSquare, Mail, TrendingUp } from "lucide-react";
 
 export default function CommunicationStats({ communications }) {
-  const phoneCalls = communications.filter((c) => c.channel === "phone").length;
+  const phoneCalls = communications.filter((c) => c.channel === "call" || c.channel === "phone").length;
   const smsMessages = communications.filter((c) => c.channel === "sms").length;
   const emailMessages = communications.filter((c) => c.channel === "email").length;
   const total = communications.length;

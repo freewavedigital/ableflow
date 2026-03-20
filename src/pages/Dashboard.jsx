@@ -95,6 +95,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const isTechnician = user?.role === "technician";
   const isAdmin = user?.role === "admin";
+  const [activeDashboardView, setActiveDashboardView] = useState(isTechnician ? "technician" : "admin");
 
   const { data: enquiries = [] } = useQuery({
     queryKey: ["enquiries"],

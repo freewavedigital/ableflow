@@ -169,7 +169,7 @@ export default function AppLayout() {
               {perms.canManageLeads && (
                 <>
                   <NavItem item={{ label: "Templates", path: "/CommunicationTemplates", icon: MessageSquare }} isActive={isActive("/CommunicationTemplates")} onClick={close} />
-                  <NavItem item={{ label: "Automation", path: "/SMSAutomation", icon: MessageSquare }} isActive={isActive("/SMSAutomation")} onClick={close} />
+                  <NavItem item={{ label: "Triggers", path: "/CommunicationTriggers", icon: Zap }} isActive={isActive("/CommunicationTriggers")} onClick={close} />
                 </>
               )}
             </NavGroup>

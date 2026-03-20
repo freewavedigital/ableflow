@@ -93,6 +93,7 @@ export default function Dashboard() {
   const { selectedBranchId } = useBranch();
   const { user } = useAuth();
   const isTechnician = user?.role === "technician";
+  const isAdmin = user?.role === "admin";
 
   const { data: enquiries = [] } = useQuery({
     queryKey: ["enquiries"],

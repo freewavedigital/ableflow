@@ -145,7 +145,7 @@ function QuickCommsDialog({ job, open, onClose }) {
               Send Quick SMS
             </p>
             <div className="space-y-2">
-              {QUICK_SMS.map((t) => {
+              {quickSMS.map((t) => {
                 const isSending = sending === t.key;
                 const isSent = sent === t.key;
                 const Icon = t.icon;

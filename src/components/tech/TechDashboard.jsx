@@ -229,39 +229,31 @@ function TechJobCard({ job, onStatusUpdate, onRefresh }) {
         </div>
 
         {/* Action row */}
-        <div className={`flex items-center gap-2 px-3 py-2.5 border-t ${job.status === "in_progress" ? "border-amber-200 bg-amber-50/70" : "border-border bg-muted/20"}`}>
-          {/* Status update button */}
-          {action && action.next && (
+        <div className={`px-3 py-3 border-t space-y-2 ${job.status === "in_progress" ? "border-amber-200 bg-amber-50/70" : "border-border bg-muted/20"}`}>
+          {/* Primary lifecycle action — one-tap SMS + status update */}
+          {quickActionStatuses.includes(job.status) ? (
+            <TechQuickActions job={job} onJobUpdated={onRefresh} />
+          ) : action && !action.next ? (
+            <div className="text-xs text-muted-foreground text-center py-1">Awaiting office review</div>
+          ) : null}
+
+          {/* Secondary row: Call/SMS + Detail */}
+          <div className="flex items-center gap-2">
             <Button
               size="sm"
-              className={`flex-1 gap-1.5 text-xs h-8 ${action.color}`}
-              onClick={() => onStatusUpdate(job.id, action.next)}
+              variant="outline"
+              className="flex-1 gap-1.5 text-xs h-8"
+              onClick={() => setCommsOpen(true)}
             >
-              <action.icon className="w-3.5 h-3.5" />
-              {action.label}
+              <Phone className="w-3.5 h-3.5" />
+              Call / SMS
             </Button>
-          )}
-          {action && !action.next && (
-            <div className="flex-1 text-xs text-muted-foreground text-center">Awaiting review</div>
-          )}
-
-          {/* Quick comms */}
-          <Button
-            size="sm"
-            variant="outline"
-            className="gap-1.5 text-xs h-8 flex-shrink-0"
-            onClick={() => setCommsOpen(true)}
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            Contact
-          </Button>
-
-          {/* Detail link */}
-          <Link to={`/TechJobDetail?id=${job.id}`}>
-            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 flex-shrink-0">
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </Link>
+            <Link to={`/TechJobDetail?id=${job.id}`}>
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 flex-shrink-0">
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 

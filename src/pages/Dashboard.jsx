@@ -139,8 +139,8 @@ export default function Dashboard() {
     ? fJobs.filter((j) => j.assigned_technician === user?.email && ["scheduled", "dispatched", "in_progress"].includes(j.status))
     : [];
 
-  // ── Technician view ──
-  if (isTechnician) {
+  // ── Technician / Admin view ──
+  if (isTechnician || isAdmin) {
     return <TechDashboard user={user} />;
   }
 

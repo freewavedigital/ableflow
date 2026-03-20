@@ -149,6 +149,21 @@ export default function CallDetailView({ callRecord, commRecord, onClose }) {
             )}
             </div>
 
+                {/* Unknown caller prompt */}
+            {!commRecord.entity_id && !commRecord.client_id && (
+              <button
+                onClick={() => setShowLinkPanel(true)}
+                className="w-full flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-left hover:bg-amber-100 transition-colors"
+              >
+                <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-amber-800">Unknown Caller</p>
+                  <p className="text-xs text-amber-700">Tap to create a lead, attach to a client, or schedule a job</p>
+                </div>
+                <Link2 className="w-4 h-4 text-amber-500 flex-shrink-0" />
+              </button>
+            )}
+
                 {/* Linking Info */}
             {commRecord.entity_id && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

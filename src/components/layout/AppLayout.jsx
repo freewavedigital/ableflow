@@ -19,6 +19,7 @@ import {
   ClipboardCheck,
   MessageSquare,
   Zap,
+  Phone,
 } from "lucide-react";
 import BranchSelector from "./BranchSelector";
 import { usePermissions } from "@/hooks/usePermissions";

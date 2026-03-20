@@ -24,8 +24,8 @@ const STATUS_ACTIONS = {
   awaiting_review: { label: "Awaiting Review",  next: null,            icon: AlertCircle,   color: "bg-muted text-muted-foreground cursor-default" },
 };
 
-// ── Quick-send SMS templates (technician-facing) ──────────────────────────
-const QUICK_SMS = [
+// ── Fallback quick-SMS (used only when no CommunicationTemplate match found) ──
+const QUICK_SMS_FALLBACKS = [
   {
     key: "on_my_way",
     label: "On My Way",

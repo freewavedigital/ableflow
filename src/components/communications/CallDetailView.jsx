@@ -76,7 +76,7 @@ export default function CallDetailView({ callRecord, commRecord, onClose }) {
           </p>
         </div>
         <div className="flex gap-1.5">
-          <Button size="sm" variant="outline" onClick={() => setShowLinkPanel(true)}>
+          <Button size="sm" variant="outline" onClick={() => setShowLinkPanel(true)} title="Convert call — create lead, job, task, or attach client">
             <Link2 className="w-4 h-4" />
           </Button>
           <Button size="sm" variant="outline" onClick={() => setShowNoteEditor(true)}>

@@ -175,7 +175,7 @@ function QuickCommsDialog({ job, open, onClose }) {
                       </p>
                       {!isSent && (
                         <p className="text-xs text-muted-foreground line-clamp-1">
-                          {t.build(job)}
+                          {t.resolvedMessage}
                         </p>
                       )}
                     </div>

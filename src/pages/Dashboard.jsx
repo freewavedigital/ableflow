@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/shared/StatusBadge";
 import { format, isToday, isPast, parseISO } from "date-fns";
+import TechDashboard from "@/components/tech/TechDashboard";
 
 // ─── Stat tile ───────────────────────────────────────────────────────────────
 function StatTile({ icon: Icon, label, value, sub, to, accent }) {
@@ -139,47 +140,7 @@ export default function Dashboard() {
 
   // ── Technician view ──
   if (isTechnician) {
-    return (
-      <div className="p-4 max-w-lg mx-auto">
-        <div className="mb-6">
-          <h1 className="text-xl font-bold">Good {getTimeOfDay()}, {user?.full_name?.split(" ")[0] || "there"}</h1>
-          <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, d MMMM yyyy")}</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <Card className="bg-primary text-primary-foreground border-0">
-            <CardContent className="p-4">
-              <p className="text-3xl font-bold">{todayJobs.length}</p>
-              <p className="text-sm opacity-80">Today's Jobs</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-3xl font-bold">{myJobs.length}</p>
-              <p className="text-sm text-muted-foreground">Active Jobs</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-4">
-          <FeedCard icon={CalendarDays} title="Today's Schedule" cta="View all" ctaTo="/MyJobs" empty="No jobs today">
-            {todayJobs.length > 0 && (
-              <div className="space-y-1">
-                {todayJobs.map((j) => (
-                  <FeedRow
-                    key={j.id}
-                    to={`/JobDetail?id=${j.id}`}
-                    primary={`${j.job_type?.replace(/_/g, " ")} — ${j.contact_name}`}
-                    secondary={`${j.scheduled_time_start || "TBC"} · ${j.site_address || "No address"}`}
-                    right={<StatusBadge status={j.status} />}
-                  />
-                ))}
-              </div>
-            )}
-          </FeedCard>
-        </div>
-      </div>
-    );
+    return <TechDashboard user={user} />;
   }
 
   // ── Admin / Manager view ──

@@ -39,6 +39,7 @@ import Communications from "@/pages/Communications";
 import SMSAutomation from "@/pages/SMSAutomation";
 import CommunicationTemplates from "@/pages/CommunicationTemplates";
 import CommunicationTriggers from "@/pages/CommunicationTriggers";
+import CommsDashboard from "@/pages/CommsDashboard";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

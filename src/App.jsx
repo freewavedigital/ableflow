@@ -85,7 +85,8 @@ const AuthenticatedApp = () => {
           <Route path="/Forms" element={<Forms />} />
           <Route path="/FormBuilder" element={<FormBuilder />} />
           <Route path="/FormSubmissions" element={<FormSubmissions />} />
-          <Route path="/Communications" element={<Communications />} />
+          <Route path="/Communications" element={<CommsDashboard />} />
+          <Route path="/CommsFeed" element={<Communications />} />
           <Route path="/SMSAutomation" element={<SMSAutomation />} />
           <Route path="/CommunicationTemplates" element={<CommunicationTemplates />} />
           <Route path="/CommunicationTriggers" element={<CommunicationTriggers />} />

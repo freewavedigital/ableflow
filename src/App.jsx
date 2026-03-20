@@ -40,6 +40,15 @@ import SMSAutomation from "@/pages/SMSAutomation";
 import CommunicationTemplates from "@/pages/CommunicationTemplates";
 import CommunicationTriggers from "@/pages/CommunicationTriggers";
 import CommsDashboard from "@/pages/CommsDashboard";
+import CommsLayout from "@/pages/CommsLayout";
+import CommsOverview from "@/pages/comms/CommsOverview";
+import CommsCalls from "@/pages/comms/CommsCalls";
+import CommsSMS from "@/pages/comms/CommsSMS";
+import CommsEmail from "@/pages/comms/CommsEmail";
+import CommsRecordings from "@/pages/comms/CommsRecordings";
+import CommsTranscripts from "@/pages/comms/CommsTranscripts";
+import CommsTemplates from "@/pages/comms/CommsTemplates";
+import CommsAutomations from "@/pages/comms/CommsAutomations";
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

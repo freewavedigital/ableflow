@@ -4,13 +4,12 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, MessageSquare, Mail, Filter, X, Plus } from "lucide-react";
+import { Phone, MessageSquare, Mail, X, Plus, ArrowUpRight, ArrowDownLeft, Play, Mic } from "lucide-react";
 import { format } from "date-fns";
 import PageHeader from "@/components/shared/PageHeader";
-import CommunicationTimeline from "@/components/communications/CommunicationTimeline";
 import CommunicationStats from "@/components/communications/CommunicationStats";
 import CallLogger from "@/components/communications/CallLogger";
-import CallDetailView from "@/components/communications/CallDetailView";
+import TimelineDetailDrawer from "@/components/communications/TimelineDetailDrawer";
 
 const CHANNEL_ICONS = {
   phone: Phone,

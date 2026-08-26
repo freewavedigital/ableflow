@@ -1,0 +1,76 @@
+{
+  "name": "Appointment",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "Job this appointment belongs to"
+    },
+    "lead_id": {
+      "type": "string",
+      "description": "Lead, if this is a tentative appointment (pre-job)"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "site_id": {
+      "type": "string"
+    },
+    "assigned_technician": {
+      "type": "string",
+      "description": "User ID or email of assigned technician"
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "tentative",
+        "confirmed",
+        "follow_up"
+      ],
+      "default": "confirmed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "confirmed",
+        "dispatched",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "rescheduled"
+      ],
+      "default": "scheduled"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "time_start": {
+      "type": "string",
+      "description": "e.g. 09:00"
+    },
+    "time_end": {
+      "type": "string",
+      "description": "e.g. 11:00"
+    },
+    "estimated_duration_hours": {
+      "type": "number",
+      "default": 2
+    },
+    "notes": {
+      "type": "string"
+    },
+    "reminder_sent": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "branch_id",
+    "scheduled_date"
+  ]
+}

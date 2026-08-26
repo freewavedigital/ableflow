@@ -1,0 +1,68 @@
+{
+  "name": "Site",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Reference to the client who owns/manages this site"
+    },
+    "name": {
+      "type": "string",
+      "description": "Site label e.g. Home, Holiday House, Unit 3"
+    },
+    "address": {
+      "type": "string"
+    },
+    "suburb": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "postcode": {
+      "type": "string"
+    },
+    "property_type": {
+      "type": "string",
+      "enum": [
+        "house",
+        "unit",
+        "townhouse",
+        "commercial",
+        "pool_complex",
+        "resort",
+        "other"
+      ],
+      "default": "house"
+    },
+    "pool_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "concrete",
+        "fibreglass",
+        "vinyl",
+        "above_ground",
+        "spa",
+        "pond",
+        "other"
+      ],
+      "default": "none"
+    },
+    "access_notes": {
+      "type": "string",
+      "description": "Gate codes, parking info, access instructions"
+    },
+    "branch_id": {
+      "type": "string",
+      "description": "Branch that services this site"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_id",
+    "address"
+  ]
+}

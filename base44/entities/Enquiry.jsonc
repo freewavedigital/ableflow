@@ -1,0 +1,190 @@
+{
+  "name": "Enquiry",
+  "type": "object",
+  "properties": {
+    "reference_number": {
+      "type": "string",
+      "description": "Auto-generated reference like ENQ-0001"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Linked client record, if exists"
+    },
+    "site_id": {
+      "type": "string",
+      "description": "Linked site record, if exists"
+    },
+    "branch_id": {
+      "type": "string",
+      "description": "Branch this enquiry is routed to"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "website",
+        "phone",
+        "email",
+        "referral",
+        "repeat_customer",
+        "partner",
+        "other"
+      ],
+      "default": "phone"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new_lead",
+        "contact_attempted",
+        "contact_made",
+        "awaiting_info",
+        "future_lead",
+        "tentative_dates",
+        "agreement_sent",
+        "ready_to_schedule",
+        "scheduled",
+        "converted_to_job",
+        "lost"
+      ],
+      "default": "new_lead"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "service_type": {
+      "type": "string",
+      "enum": [
+        "leak_inspection",
+        "structural_inspection",
+        "pressure_test",
+        "scuba_dive_test",
+        "pipe_blockage",
+        "repair",
+        "domestic_inspection",
+        "service_call",
+        "follow_up",
+        "other"
+      ],
+      "default": "leak_inspection"
+    },
+    "property_type": {
+      "type": "string",
+      "enum": [
+        "house",
+        "unit",
+        "townhouse",
+        "commercial",
+        "pool_complex",
+        "resort",
+        "other"
+      ],
+      "default": "house"
+    },
+    "pool_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "concrete",
+        "fibreglass",
+        "vinyl",
+        "above_ground",
+        "spa",
+        "pond",
+        "other"
+      ],
+      "default": "none"
+    },
+    "site_address": {
+      "type": "string"
+    },
+    "site_suburb": {
+      "type": "string"
+    },
+    "site_state": {
+      "type": "string"
+    },
+    "site_postcode": {
+      "type": "string"
+    },
+    "issue_summary": {
+      "type": "string",
+      "description": "Brief summary of the issue reported"
+    },
+    "additional_notes": {
+      "type": "string",
+      "description": "Any other details from the customer"
+    },
+    "previous_customer": {
+      "type": "boolean",
+      "default": false
+    },
+    "photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Photos uploaded at enquiry stage"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Staff member responsible for this lead"
+    },
+    "tentative_date_from": {
+      "type": "string",
+      "format": "date",
+      "description": "Start of tentative booking window"
+    },
+    "tentative_date_to": {
+      "type": "string",
+      "format": "date",
+      "description": "End of tentative booking window"
+    },
+    "tentative_notes": {
+      "type": "string",
+      "description": "Notes about tentative scheduling"
+    },
+    "agreement_status": {
+      "type": "string",
+      "enum": [
+        "not_sent",
+        "sent",
+        "viewed",
+        "signed"
+      ],
+      "default": "not_sent"
+    },
+    "lost_reason": {
+      "type": "string",
+      "description": "Reason if lead was lost"
+    },
+    "follow_up_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal"
+    },
+    "converted_job_id": {
+      "type": "string",
+      "description": "Job ID if this enquiry was converted"
+    }
+  },
+  "required": [
+    "contact_name",
+    "contact_phone",
+    "service_type"
+  ]
+}

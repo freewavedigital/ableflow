@@ -1,0 +1,48 @@
+{
+  "name": "Contact",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Parent client this contact belongs to"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "description": "e.g. Owner, Property Manager, Tenant, Pool Tech"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "preferred_contact_method": {
+      "type": "string",
+      "enum": [
+        "phone",
+        "email",
+        "sms"
+      ],
+      "default": "phone"
+    },
+    "is_primary": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this the primary contact for the client?"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_id",
+    "first_name",
+    "last_name"
+  ]
+}

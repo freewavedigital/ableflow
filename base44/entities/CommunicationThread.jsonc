@@ -1,0 +1,170 @@
+{
+  "name": "CommunicationThread",
+  "type": "object",
+  "description": "Groups related communications into a conversation thread",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "job",
+        "client"
+      ],
+      "description": "What record this thread is attached to"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of the lead, job, or client"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Reference to the client"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Thread subject or topic"
+    },
+    "description": {
+      "type": "string"
+    },
+    "thread_type": {
+      "type": "string",
+      "enum": [
+        "quote_discussion",
+        "scheduling",
+        "complaint",
+        "follow_up",
+        "billing",
+        "general",
+        "other"
+      ],
+      "description": "Type of thread"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "client",
+              "technician",
+              "manager",
+              "admin"
+            ]
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "communication_record_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of CommunicationRecord IDs in this thread"
+    },
+    "message_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total count of messages in thread"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "resolved",
+        "on_hold",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "User email responsible for this thread"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When thread was created"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When last message was added"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When thread was marked resolved"
+    },
+    "resolved_by": {
+      "type": "string",
+      "description": "User email who resolved the thread"
+    },
+    "resolution_notes": {
+      "type": "string",
+      "description": "Summary of resolution"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "document_type": {
+            "type": "string",
+            "enum": [
+              "quote",
+              "agreement",
+              "invoice",
+              "report",
+              "other"
+            ]
+          },
+          "document_id": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Documents related to this thread"
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "subject",
+    "thread_type"
+  ]
+}

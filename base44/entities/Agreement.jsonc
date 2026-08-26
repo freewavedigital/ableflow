@@ -1,0 +1,119 @@
+{
+  "name": "Agreement",
+  "type": "object",
+  "properties": {
+    "form_template_id": {
+      "type": "string",
+      "description": "Reference to the FormTemplate (agreement type) this agreement uses"
+    },
+    "lead_id": {
+      "type": "string",
+      "description": "Lead this agreement is attached to (pre-job stage)"
+    },
+    "job_id": {
+      "type": "string",
+      "description": "Job this agreement is attached to (post-conversion or pre-scheduling)"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Client signing the agreement"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "agreement_type": {
+      "type": "string",
+      "enum": [
+        "service_agreement",
+        "inspection_agreement",
+        "repair_agreement",
+        "other"
+      ],
+      "default": "service_agreement",
+      "description": "Semantic type of agreement"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "viewed",
+        "signed",
+        "declined",
+        "expired"
+      ],
+      "default": "draft",
+      "description": "Workflow status of the agreement"
+    },
+    "sent_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the agreement was sent to the client"
+    },
+    "viewed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the client first viewed the agreement"
+    },
+    "signed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the client signed the agreement"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date after which the agreement is no longer valid"
+    },
+    "signature_record_id": {
+      "type": "string",
+      "description": "Reference to the SignatureRecord containing signer details and signature image"
+    },
+    "signer_name": {
+      "type": "string",
+      "description": "Name of the person who signed (snapshot at time of signing)"
+    },
+    "signer_email": {
+      "type": "string",
+      "description": "Email of the signer (if applicable)"
+    },
+    "signer_role": {
+      "type": "string",
+      "description": "Role of signer e.g. Owner, Property Manager, Authorised Representative"
+    },
+    "client_name_snapshot": {
+      "type": "string",
+      "description": "Client name pre-filled snapshot"
+    },
+    "site_address_snapshot": {
+      "type": "string",
+      "description": "Site address pre-filled snapshot"
+    },
+    "service_type_snapshot": {
+      "type": "string",
+      "description": "Service type / job type pre-filled snapshot"
+    },
+    "document_url": {
+      "type": "string",
+      "description": "URL to generated agreement document PDF (if applicable)"
+    },
+    "signed_document_url": {
+      "type": "string",
+      "description": "URL to PDF with captured signature embedded"
+    },
+    "form_submission_id": {
+      "type": "string",
+      "description": "Reference to the FormSubmission record (for integration with form builder)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Admin notes about the agreement"
+    }
+  },
+  "required": [
+    "form_template_id",
+    "client_id",
+    "branch_id",
+    "agreement_type"
+  ]
+}

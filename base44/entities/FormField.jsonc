@@ -1,0 +1,106 @@
+{
+  "name": "FormField",
+  "type": "object",
+  "properties": {
+    "section_id": {
+      "type": "string",
+      "description": "Parent FormSection this field belongs to"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Denormalised reference to FormTemplate for efficient querying"
+    },
+    "field_key": {
+      "type": "string",
+      "description": "Stable machine-readable key e.g. 'water_loss_rate'. Used as the key in submission field_values."
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable field label shown in the form"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "textarea",
+        "email",
+        "phone",
+        "number",
+        "select",
+        "multi_select",
+        "yes_no",
+        "pass_fail",
+        "checkbox",
+        "date",
+        "time",
+        "datetime",
+        "photo",
+        "video",
+        "file",
+        "signature",
+        "heading",
+        "paragraph",
+        "divider"
+      ]
+    },
+    "required": {
+      "type": "boolean",
+      "default": false
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "For select / multi_select fields: available choices"
+    },
+    "placeholder": {
+      "type": "string"
+    },
+    "helper_text": {
+      "type": "string",
+      "description": "Instructional text shown below the field"
+    },
+    "default_value": {
+      "type": "string",
+      "description": "Pre-filled value when the form is opened"
+    },
+    "min_value": {
+      "type": "number",
+      "description": "For number fields: minimum allowed value"
+    },
+    "max_value": {
+      "type": "number",
+      "description": "For number fields: maximum allowed value"
+    },
+    "max_length": {
+      "type": "number",
+      "description": "For text/textarea: maximum character length"
+    },
+    "order": {
+      "type": "number",
+      "description": "Display order within the section (ascending)"
+    },
+    "visible_client": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this field is visible on client-facing reports"
+    },
+    "is_hidden": {
+      "type": "boolean",
+      "default": false,
+      "description": "Hidden by default; can be revealed by a FormLogicRule"
+    },
+    "maps_to_entity_field": {
+      "type": "string",
+      "description": "For website/agreement forms: maps this field value onto a Lead or Job field on submission e.g. 'contact_name', 'site_address'"
+    }
+  },
+  "required": [
+    "section_id",
+    "template_id",
+    "field_key",
+    "label",
+    "type"
+  ]
+}

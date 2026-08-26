@@ -1,0 +1,37 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "technician",
+        "branch_manager",
+        "head_office"
+      ],
+      "default": "technician",
+      "description": "User role determining access level"
+    },
+    "branch_id": {
+      "type": "string",
+      "description": "Branch this user belongs to. Head office users leave blank for global access."
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "phone": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string",
+      "description": "e.g. Senior Technician, Branch Admin, Operations Manager"
+    }
+  },
+  "required": [
+    "branch_id",
+    "phone",
+    "job_title"
+  ]
+}

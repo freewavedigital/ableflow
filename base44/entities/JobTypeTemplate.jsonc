@@ -1,0 +1,107 @@
+{
+  "name": "JobTypeTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "e.g. Initial Leak Inspection, Pressure Test, Scuba Dive Test"
+    },
+    "job_type_key": {
+      "type": "string",
+      "enum": [
+        "leak_inspection",
+        "structural_inspection",
+        "pressure_test",
+        "scuba_dive_test",
+        "pipe_blockage",
+        "repair",
+        "domestic_inspection",
+        "service_call",
+        "follow_up",
+        "other"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "estimated_duration_hours": {
+      "type": "number",
+      "default": 2
+    },
+    "default_price": {
+      "type": "number"
+    },
+    "sections": {
+      "type": "array",
+      "description": "Ordered form sections for this job type",
+      "items": {
+        "type": "object",
+        "properties": {
+          "section_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field_id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "textarea",
+                    "yes_no",
+                    "pass_fail",
+                    "number",
+                    "select",
+                    "photo",
+                    "video",
+                    "checkbox",
+                    "date"
+                  ]
+                },
+                "required": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "order": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "branch_id": {
+      "type": "string",
+      "description": "Leave blank for global template, set branch_id for branch-specific override"
+    }
+  },
+  "required": [
+    "name",
+    "job_type_key"
+  ]
+}

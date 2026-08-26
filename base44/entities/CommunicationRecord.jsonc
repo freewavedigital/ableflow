@@ -1,0 +1,103 @@
+{
+  "name": "CommunicationRecord",
+  "type": "object",
+  "description": "Base communication record linking all communication types to business entities",
+  "properties": {
+    "communication_type": {
+      "type": "string",
+      "enum": [
+        "call",
+        "sms",
+        "email"
+      ],
+      "description": "Type of communication"
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "job",
+        "client",
+        "site"
+      ],
+      "description": "What record this communication is attached to"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of the lead, job, client, or site"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Reference to the client for reporting and filtering"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "thread_id": {
+      "type": "string",
+      "description": "Link to CommunicationThread for grouping related messages"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "inbound",
+        "outbound"
+      ],
+      "description": "Incoming or outgoing"
+    },
+    "initiated_by": {
+      "type": "string",
+      "description": "User email who initiated this communication"
+    },
+    "contact_phone": {
+      "type": "string",
+      "description": "Phone number for calls and SMS"
+    },
+    "contact_email": {
+      "type": "string",
+      "description": "Email address for emails"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Name of the person communicated with"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When communication occurred"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "failed",
+        "archived"
+      ],
+      "default": "completed"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorization (urgent, callback_needed, follow_up, etc)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form notes or summary"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional context (campaign, template used, etc)"
+    }
+  },
+  "required": [
+    "communication_type",
+    "entity_type",
+    "entity_id",
+    "direction",
+    "timestamp"
+  ]
+}

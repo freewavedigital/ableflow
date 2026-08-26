@@ -1,0 +1,70 @@
+{
+  "name": "FormLogicRule",
+  "type": "object",
+  "description": "Conditional display or validation rules. If condition is met, the action is applied to the target field or section.",
+  "properties": {
+    "template_id": {
+      "type": "string",
+      "description": "Parent FormTemplate this rule belongs to"
+    },
+    "trigger_field_key": {
+      "type": "string",
+      "description": "The field_key of the field whose value triggers this rule"
+    },
+    "operator": {
+      "type": "string",
+      "enum": [
+        "equals",
+        "not_equals",
+        "contains",
+        "is_empty",
+        "is_not_empty",
+        "greater_than",
+        "less_than"
+      ],
+      "description": "Comparison operator applied to the trigger field value"
+    },
+    "trigger_value": {
+      "type": "string",
+      "description": "The value to compare against (not needed for is_empty / is_not_empty)"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "show",
+        "hide",
+        "require",
+        "unrequire",
+        "set_value"
+      ],
+      "description": "What happens when the condition is true"
+    },
+    "target_field_key": {
+      "type": "string",
+      "description": "field_key of the field or section_id to apply the action to"
+    },
+    "target_type": {
+      "type": "string",
+      "enum": [
+        "field",
+        "section"
+      ],
+      "default": "field"
+    },
+    "set_value": {
+      "type": "string",
+      "description": "For action=set_value: the value to write into the target field"
+    },
+    "order": {
+      "type": "number",
+      "description": "Evaluation order when multiple rules exist"
+    }
+  },
+  "required": [
+    "template_id",
+    "trigger_field_key",
+    "operator",
+    "action",
+    "target_field_key"
+  ]
+}

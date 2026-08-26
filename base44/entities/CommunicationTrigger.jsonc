@@ -1,0 +1,164 @@
+{
+  "name": "CommunicationTrigger",
+  "type": "object",
+  "description": "Automation rules to send communications based on business events",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the automation rule"
+    },
+    "description": {
+      "type": "string"
+    },
+    "trigger_event": {
+      "type": "string",
+      "enum": [
+        "lead_created",
+        "lead_status_changed",
+        "job_created",
+        "job_scheduled",
+        "job_completed",
+        "job_status_changed",
+        "agreement_sent",
+        "agreement_signed",
+        "quote_sent",
+        "invoice_sent",
+        "invoice_overdue",
+        "appointment_approaching",
+        "manual"
+      ],
+      "description": "Event that triggers the communication"
+    },
+    "trigger_conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "Field to evaluate (e.g., 'job_type', 'priority')"
+          },
+          "operator": {
+            "type": "string",
+            "enum": [
+              "equals",
+              "not_equals",
+              "contains",
+              "greater_than",
+              "less_than",
+              "is_empty"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Additional conditions that must be met (AND logic)"
+    },
+    "communication_channel": {
+      "type": "string",
+      "enum": [
+        "sms",
+        "email",
+        "call"
+      ],
+      "description": "How to communicate"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Reference to CommunicationTemplate to use"
+    },
+    "recipient_type": {
+      "type": "string",
+      "enum": [
+        "client",
+        "assigned_technician",
+        "branch_manager",
+        "custom"
+      ],
+      "description": "Who receives the communication"
+    },
+    "recipient_custom": {
+      "type": "string",
+      "description": "Custom email or phone if recipient_type is 'custom'"
+    },
+    "delay_minutes": {
+      "type": "number",
+      "default": 0,
+      "description": "Minutes to wait after trigger before sending"
+    },
+    "send_time_rule": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "immediate",
+            "business_hours",
+            "scheduled_time"
+          ],
+          "default": "immediate"
+        },
+        "hour": {
+          "type": "number",
+          "description": "Hour of day (0-23) if scheduled_time"
+        },
+        "day_of_week": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat",
+              "sun"
+            ]
+          }
+        }
+      }
+    },
+    "max_retries": {
+      "type": "number",
+      "default": 3,
+      "description": "Maximum number of delivery retry attempts"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "disabled"
+      ],
+      "default": "active"
+    },
+    "branch_id": {
+      "type": "string",
+      "description": "Branch this trigger applies to (empty = global)"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "last_modified_by": {
+      "type": "string"
+    },
+    "execution_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times this trigger has fired"
+    },
+    "last_executed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "name",
+    "trigger_event",
+    "communication_channel",
+    "template_id"
+  ]
+}

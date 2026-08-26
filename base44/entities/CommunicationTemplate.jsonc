@@ -1,0 +1,146 @@
+{
+  "name": "CommunicationTemplate",
+  "type": "object",
+  "description": "Reusable templates for SMS, email, and call scripts",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Template name (e.g., 'Appointment Reminder', 'Quote Sent')"
+    },
+    "template_type": {
+      "type": "string",
+      "enum": [
+        "sms",
+        "email",
+        "call_script"
+      ],
+      "description": "Type of communication template"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "appointment",
+        "reminder",
+        "confirmation",
+        "quote",
+        "agreement",
+        "invoice",
+        "follow_up",
+        "emergency",
+        "satisfaction",
+        "other"
+      ],
+      "description": "Category for organization"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this template is used for"
+    },
+    "content": {
+      "type": "string",
+      "description": "Template content with variables like {{customer_name}}, {{job_type}}"
+    },
+    "for_email_only": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "type": "string",
+          "description": "Email subject line with variables"
+        },
+        "body_html": {
+          "type": "string",
+          "description": "HTML formatted email body"
+        },
+        "body_plain": {
+          "type": "string",
+          "description": "Plain text email body"
+        }
+      }
+    },
+    "for_call_only": {
+      "type": "object",
+      "properties": {
+        "opening": {
+          "type": "string",
+          "description": "Opening line"
+        },
+        "key_points": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "closing": {
+          "type": "string",
+          "description": "Closing line"
+        },
+        "objection_handling": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Common objections and responses"
+        }
+      }
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Variable name (e.g., 'customer_name')"
+          },
+          "description": {
+            "type": "string"
+          },
+          "example": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "description": "List of variables that can be used in template"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "branch_id": {
+      "type": "string",
+      "description": "Branch this template belongs to (empty = global)"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User email who created this template"
+    },
+    "last_modified_by": {
+      "type": "string"
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "How many times this template has been used"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "name",
+    "template_type",
+    "category",
+    "content"
+  ]
+}

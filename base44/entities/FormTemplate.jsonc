@@ -1,0 +1,206 @@
+{
+  "name": "FormTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Human-readable template name e.g. Pool Leak Website Form, Initial Inspection Report"
+    },
+    "form_type": {
+      "type": "string",
+      "enum": [
+        "website",
+        "job",
+        "agreement"
+      ],
+      "description": "website = public lead capture; job = internal technician form; agreement = contract/signature"
+    },
+    "related_object": {
+      "type": "string",
+      "enum": [
+        "Lead",
+        "Job",
+        "Lead_or_Job"
+      ],
+      "description": "The entity type this form submission creates or attaches to"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "default": "draft",
+      "description": "Lifecycle status of this template"
+    },
+    "version": {
+      "type": "number",
+      "default": 1,
+      "description": "Increment when making breaking field changes; old submissions retain their version snapshot"
+    },
+    "version_notes": {
+      "type": "string",
+      "description": "What changed in this version"
+    },
+    "description": {
+      "type": "string"
+    },
+    "branch_id": {
+      "type": "string",
+      "description": "Restrict to a specific branch. Leave blank for global template."
+    },
+    "linked_job_type": {
+      "type": "string",
+      "enum": [
+        "leak_inspection",
+        "structural_inspection",
+        "pressure_test",
+        "scuba_dive_test",
+        "pipe_blockage",
+        "repair",
+        "domestic_inspection",
+        "service_call",
+        "follow_up",
+        "other",
+        "any"
+      ],
+      "description": "For job forms: which job type this applies to. 'any' = generic."
+    },
+    "agreement_linked_to": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "job",
+        "either"
+      ],
+      "default": "either",
+      "description": "For agreement forms: which workflow stage this agreement is sent from"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "For website forms: publicly accessible without login"
+    },
+    "requires_signature": {
+      "type": "boolean",
+      "default": false,
+      "description": "For agreement forms: digital signature required to submit"
+    },
+    "submission_email_to": {
+      "type": "string",
+      "description": "For website forms: email address to notify on new submission"
+    },
+    "success_message": {
+      "type": "string",
+      "description": "For website forms: message shown to submitter after success"
+    },
+    "agreement_body": {
+      "type": "string",
+      "description": "For agreement forms: contract/terms body text the client reads before signing"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional tags for filtering/grouping templates e.g. 'pool', 'domestic', 'commercial'"
+    },
+    "sections": {
+      "type": "array",
+      "description": "Ordered sections with embedded fields for this template",
+      "items": {
+        "type": "object",
+        "properties": {
+          "section_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "logic_rules": {
+      "type": "array",
+      "description": "Conditional display/validation rules. Each rule has conditions (multi-condition AND/OR) and an action applied to a target field or section.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "match": {
+            "type": "string",
+            "enum": [
+              "all",
+              "any"
+            ],
+            "description": "all = AND, any = OR across conditions"
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "trigger_field_key": {
+                  "type": "string"
+                },
+                "operator": {
+                  "type": "string",
+                  "enum": [
+                    "equals",
+                    "not_equals",
+                    "contains",
+                    "is_empty",
+                    "is_not_empty",
+                    "greater_than",
+                    "less_than"
+                  ]
+                },
+                "trigger_value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "show",
+              "hide",
+              "require",
+              "unrequire"
+            ]
+          },
+          "target_field_key": {
+            "type": "string",
+            "description": "field_key of target field, or section id if target_type=section"
+          },
+          "target_type": {
+            "type": "string",
+            "enum": [
+              "field",
+              "section"
+            ],
+            "default": "field"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "form_type",
+    "related_object"
+  ]
+}

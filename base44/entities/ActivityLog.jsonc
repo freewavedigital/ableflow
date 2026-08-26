@@ -1,0 +1,50 @@
+{
+  "name": "ActivityLog",
+  "type": "object",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "enquiry",
+        "job",
+        "client",
+        "quote",
+        "invoice"
+      ],
+      "description": "What type of record this activity is about"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of the related record"
+    },
+    "activity_type": {
+      "type": "string",
+      "enum": [
+        "note",
+        "call",
+        "email_sent",
+        "sms_sent",
+        "status_change",
+        "assignment_change",
+        "file_upload",
+        "system"
+      ],
+      "default": "note"
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Extra data like old_status, new_status etc"
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "activity_type"
+  ]
+}

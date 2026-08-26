@@ -1,0 +1,175 @@
+{
+  "name": "CallTranscript",
+  "type": "object",
+  "description": "Transcribed text of a phone call with speaker identification",
+  "properties": {
+    "call_record_id": {
+      "type": "string",
+      "description": "Reference to parent CallRecord"
+    },
+    "call_recording_id": {
+      "type": "string",
+      "description": "Reference to associated CallRecording"
+    },
+    "full_transcript": {
+      "type": "string",
+      "description": "Complete transcript text"
+    },
+    "transcript_format": {
+      "type": "string",
+      "enum": [
+        "plain",
+        "json",
+        "vtt",
+        "srt"
+      ],
+      "default": "plain",
+      "description": "Format of the transcript"
+    },
+    "transcription_service": {
+      "type": "string",
+      "enum": [
+        "openai",
+        "google",
+        "aws",
+        "custom"
+      ],
+      "description": "Service used for transcription"
+    },
+    "transcription_accuracy": {
+      "type": "number",
+      "description": "Confidence score of transcription (0-100)"
+    },
+    "language": {
+      "type": "string",
+      "default": "en",
+      "description": "Language code (e.g., en, es, fr)"
+    },
+    "speaker_segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "speaker": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "customer",
+              "unknown"
+            ],
+            "description": "Who is speaking"
+          },
+          "start_time": {
+            "type": "number",
+            "description": "Start time in seconds from call beginning"
+          },
+          "end_time": {
+            "type": "number",
+            "description": "End time in seconds from call beginning"
+          },
+          "text": {
+            "type": "string",
+            "description": "Transcript segment text"
+          }
+        }
+      }
+    },
+    "key_topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Extracted key topics discussed in the call"
+    },
+    "action_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Extracted action items or commitments"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Important keywords or phrases"
+    },
+    "sentiment_overall": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "neutral",
+        "negative"
+      ],
+      "description": "Overall call sentiment"
+    },
+    "sentiment_by_speaker": {
+      "type": "object",
+      "properties": {
+        "agent": {
+          "type": "string",
+          "enum": [
+            "positive",
+            "neutral",
+            "negative"
+          ]
+        },
+        "customer": {
+          "type": "string",
+          "enum": [
+            "positive",
+            "neutral",
+            "negative"
+          ]
+        }
+      }
+    },
+    "issues_identified": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Customer issues or complaints mentioned"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_reviewed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether transcript has been reviewed by a human"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "User email who reviewed the transcript"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "corrections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "original_text": {
+            "type": "string"
+          },
+          "corrected_text": {
+            "type": "string"
+          },
+          "timestamp_seconds": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Manual corrections made to transcript"
+    }
+  },
+  "required": [
+    "call_record_id",
+    "full_transcript"
+  ]
+}

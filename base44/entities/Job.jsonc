@@ -1,0 +1,184 @@
+{
+  "name": "Job",
+  "type": "object",
+  "properties": {
+    "job_number": {
+      "type": "string",
+      "description": "Auto-generated reference like JOB-0001"
+    },
+    "enquiry_id": {
+      "type": "string",
+      "description": "Linked enquiry this job was created from"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "site_id": {
+      "type": "string"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "job_type": {
+      "type": "string",
+      "enum": [
+        "leak_inspection",
+        "structural_inspection",
+        "pressure_test",
+        "scuba_dive_test",
+        "pipe_blockage",
+        "repair",
+        "domestic_inspection",
+        "service_call",
+        "follow_up",
+        "other"
+      ],
+      "default": "leak_inspection"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "scheduled",
+        "dispatched",
+        "in_progress",
+        "awaiting_review",
+        "completed",
+        "follow_up_required",
+        "quote_required",
+        "invoiced",
+        "closed",
+        "cancelled"
+      ],
+      "default": "scheduled"
+    },
+    "assigned_technician": {
+      "type": "string",
+      "description": "Technician email/ID"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "scheduled_time_start": {
+      "type": "string",
+      "description": "e.g. 09:00"
+    },
+    "scheduled_time_end": {
+      "type": "string",
+      "description": "e.g. 11:00"
+    },
+    "estimated_duration_hours": {
+      "type": "number",
+      "default": 2
+    },
+    "arrival_time": {
+      "type": "string"
+    },
+    "departure_time": {
+      "type": "string"
+    },
+    "time_on_site_minutes": {
+      "type": "number"
+    },
+    "site_address": {
+      "type": "string"
+    },
+    "site_suburb": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "access_notes": {
+      "type": "string"
+    },
+    "job_notes": {
+      "type": "string",
+      "description": "Internal notes about the job"
+    },
+    "technician_notes": {
+      "type": "string",
+      "description": "Instructions for the technician"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "no_issue_found",
+        "issue_found_quote_required",
+        "further_testing_required",
+        "follow_up_visit_required",
+        "repair_approved",
+        "completed_closed",
+        "client_declined"
+      ],
+      "default": "pending",
+      "description": "Outcome selected by technician or admin after job completion"
+    },
+    "outcome_notes": {
+      "type": "string"
+    },
+    "photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "video_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "report_data": {
+      "type": "object",
+      "description": "Structured inspection form data submitted by technician"
+    },
+    "materials_used": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "cost": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal"
+    },
+    "linked_quote_id": {
+      "type": "string"
+    },
+    "linked_invoice_id": {
+      "type": "string"
+    },
+    "follow_up_job_id": {
+      "type": "string",
+      "description": "ID of a follow-up job created from this one"
+    }
+  },
+  "required": [
+    "job_type",
+    "branch_id",
+    "scheduled_date"
+  ]
+}

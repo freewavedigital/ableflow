@@ -1,0 +1,52 @@
+{
+  "name": "FormActionTrigger",
+  "type": "object",
+  "description": "Post-submission automation rules. Fires when a form is submitted (or reaches a specific status).",
+  "properties": {
+    "template_id": {
+      "type": "string",
+      "description": "Parent FormTemplate this trigger belongs to"
+    },
+    "name": {
+      "type": "string",
+      "description": "Descriptive label e.g. 'Create Lead on Submit', 'Notify Office Email'"
+    },
+    "fire_on": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "signed",
+        "reviewed",
+        "converted"
+      ],
+      "default": "submitted",
+      "description": "Which submission status change fires this trigger"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "create_lead",
+        "create_job",
+        "send_email_notification",
+        "send_email_to_submitter",
+        "create_task",
+        "update_entity_field",
+        "webhook"
+      ]
+    },
+    "config": {
+      "type": "object",
+      "description": "Action-specific configuration. e.g. { email_to: 'office@example.com', subject: '...' } or { field: 'status', value: 'ready_to_schedule' }"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "template_id",
+    "name",
+    "fire_on",
+    "action_type"
+  ]
+}

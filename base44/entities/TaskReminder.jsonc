@@ -1,0 +1,106 @@
+{
+  "name": "TaskReminder",
+  "type": "object",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "job",
+        "client",
+        "quote",
+        "invoice"
+      ],
+      "description": "What record this task is related to"
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "entity_label": {
+      "type": "string",
+      "description": "Snapshot label for display e.g. 'Sarah Jones \u2014 Leak Inspection'"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "follow_up_call",
+        "send_email",
+        "send_agreement",
+        "confirm_booking",
+        "chase_payment",
+        "schedule_job",
+        "internal_action",
+        "other"
+      ],
+      "default": "follow_up_call"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "snoozed"
+      ],
+      "default": "pending"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "due_time": {
+      "type": "string",
+      "description": "e.g. 09:00 \u2014 optional time of day"
+    },
+    "reminder_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date to surface this task as a reminder (can be before due_date)"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "User email responsible for this task"
+    },
+    "snoozed_until": {
+      "type": "string",
+      "format": "date",
+      "description": "If snoozed, hide until this date"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "completed_by": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "title",
+    "due_date"
+  ]
+}

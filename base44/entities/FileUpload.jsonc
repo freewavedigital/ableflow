@@ -1,0 +1,70 @@
+{
+  "name": "FileUpload",
+  "type": "object",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "job",
+        "client",
+        "site",
+        "quote",
+        "invoice",
+        "agreement",
+        "form_submission"
+      ]
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "file_url": {
+      "type": "string"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "file_type": {
+      "type": "string",
+      "enum": [
+        "photo",
+        "video",
+        "document",
+        "pdf",
+        "other"
+      ],
+      "default": "photo"
+    },
+    "mime_type": {
+      "type": "string"
+    },
+    "size_bytes": {
+      "type": "number"
+    },
+    "caption": {
+      "type": "string"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "User email"
+    },
+    "is_report_photo": {
+      "type": "boolean",
+      "default": false,
+      "description": "Should this photo appear in the client report?"
+    },
+    "section_reference": {
+      "type": "string",
+      "description": "Which form section this photo relates to"
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "file_url",
+    "file_name"
+  ]
+}

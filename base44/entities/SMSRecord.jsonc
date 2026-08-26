@@ -1,0 +1,92 @@
+{
+  "name": "SMSRecord",
+  "type": "object",
+  "description": "SMS message record with delivery tracking",
+  "properties": {
+    "communication_record_id": {
+      "type": "string",
+      "description": "Reference to parent CommunicationRecord"
+    },
+    "phone_number": {
+      "type": "string",
+      "description": "Phone number sent to or received from"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message body text"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When SMS was delivered to recipient"
+    },
+    "read_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When recipient read the message (if available)"
+    },
+    "delivery_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "delivered",
+        "read",
+        "failed",
+        "expired"
+      ],
+      "default": "sent"
+    },
+    "error_code": {
+      "type": "string",
+      "description": "Error code if delivery failed"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Human-readable error if delivery failed"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "reminder",
+        "confirmation",
+        "quote",
+        "update",
+        "follow_up",
+        "emergency",
+        "general"
+      ],
+      "default": "general"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Reference to CommunicationTemplate if based on template"
+    },
+    "character_count": {
+      "type": "number",
+      "description": "Length of SMS message"
+    },
+    "sms_count": {
+      "type": "number",
+      "description": "Number of SMS parts if message exceeds single SMS"
+    },
+    "cost": {
+      "type": "number",
+      "description": "Cost to send this SMS"
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of delivery retry attempts"
+    }
+  },
+  "required": [
+    "communication_record_id",
+    "phone_number",
+    "content"
+  ]
+}

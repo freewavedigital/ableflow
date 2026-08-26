@@ -1,0 +1,34 @@
+{
+  "name": "Branch",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Branch name e.g. NSW, Melbourne, Northern Rivers"
+    },
+    "region": {
+      "type": "string",
+      "description": "Geographic region"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

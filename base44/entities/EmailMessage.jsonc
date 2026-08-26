@@ -1,0 +1,125 @@
+{
+  "name": "EmailMessage",
+  "type": "object",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "job",
+        "client"
+      ],
+      "description": "What record this email is attached to"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of the lead, job, or client"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Reference to the client for reporting"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "inbound",
+        "outbound"
+      ],
+      "default": "outbound"
+    },
+    "recipient_email": {
+      "type": "string",
+      "description": "Email address sent to or received from"
+    },
+    "recipient_name": {
+      "type": "string",
+      "description": "Recipient's full name"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string",
+      "description": "Email body HTML or plain text"
+    },
+    "sent_by": {
+      "type": "string",
+      "description": "Staff member email who sent the message"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "delivered",
+        "opened",
+        "bounced",
+        "failed"
+      ],
+      "default": "sent"
+    },
+    "opened_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the email was opened (if tracked)"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error details if delivery failed"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "quote",
+        "agreement",
+        "invoice",
+        "reminder",
+        "confirmation",
+        "update",
+        "follow_up",
+        "general"
+      ],
+      "default": "general"
+    },
+    "template_key": {
+      "type": "string",
+      "description": "e.g. 'quote_sent', 'appointment_confirmed'"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file_url": {
+            "type": "string"
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "file_type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "recipient_email",
+    "subject"
+  ]
+}

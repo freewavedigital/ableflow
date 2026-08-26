@@ -1,0 +1,86 @@
+{
+  "name": "CommunicationLog",
+  "type": "object",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "job",
+        "client",
+        "quote",
+        "invoice",
+        "agreement"
+      ],
+      "description": "What record this communication is attached to"
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "email",
+        "sms",
+        "phone_call",
+        "internal_note",
+        "system"
+      ],
+      "default": "email"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "outbound",
+        "inbound"
+      ],
+      "default": "outbound"
+    },
+    "template_key": {
+      "type": "string",
+      "description": "e.g. enquiry_received, booking_confirmed, quote_sent"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "sent_by": {
+      "type": "string",
+      "description": "User email who triggered this"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "delivered",
+        "failed",
+        "logged"
+      ],
+      "default": "logged"
+    },
+    "recipient_email": {
+      "type": "string"
+    },
+    "recipient_phone": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "channel"
+  ]
+}

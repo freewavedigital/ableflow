@@ -1,0 +1,62 @@
+{
+  "name": "SignatureRecord",
+  "type": "object",
+  "description": "Immutable record of a digital signature capture. Linked from both Agreement and FormSubmission. Never deleted or modified after creation.",
+  "properties": {
+    "agreement_id": {
+      "type": "string",
+      "description": "Parent Agreement this signature belongs to (if agreement workflow)"
+    },
+    "form_submission_id": {
+      "type": "string",
+      "description": "Parent FormSubmission this signature belongs to (if form submission workflow)"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Reference to FormTemplate for context"
+    },
+    "signer_name": {
+      "type": "string",
+      "description": "Full name of signer"
+    },
+    "signer_email": {
+      "type": "string",
+      "description": "Email address of signer"
+    },
+    "signer_role": {
+      "type": "string",
+      "description": "Role e.g. Client, Property Manager, Authorised Representative, Owner"
+    },
+    "signature_url": {
+      "type": "string",
+      "description": "URL to captured signature image (PNG of canvas draw)"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when signature was captured"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address of device at time of signing (audit trail)"
+    },
+    "device_info": {
+      "type": "string",
+      "description": "User-agent / device fingerprint at time of signing"
+    },
+    "agreed_to_terms": {
+      "type": "boolean",
+      "default": false,
+      "description": "Signer explicitly confirmed acceptance of agreement terms"
+    },
+    "document_hash": {
+      "type": "string",
+      "description": "SHA256 hash of agreement body text at signing \u2014 proves document was not modified"
+    }
+  },
+  "required": [
+    "signer_name",
+    "signature_url",
+    "signed_at"
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "name": "CallRecording",
+  "type": "object",
+  "description": "Audio recording of a phone call with metadata",
+  "properties": {
+    "call_record_id": {
+      "type": "string",
+      "description": "Reference to parent CallRecord"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to the audio recording file"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Name of the recording file"
+    },
+    "file_format": {
+      "type": "string",
+      "enum": [
+        "mp3",
+        "wav",
+        "m4a",
+        "opus",
+        "webm"
+      ],
+      "description": "Audio format"
+    },
+    "file_size_bytes": {
+      "type": "number",
+      "description": "Size of recording file in bytes"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "description": "Duration of recording in seconds"
+    },
+    "recording_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When recording started"
+    },
+    "recording_ended_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When recording ended"
+    },
+    "bit_rate_kbps": {
+      "type": "number",
+      "description": "Bitrate of the recording"
+    },
+    "sample_rate_hz": {
+      "type": "number",
+      "description": "Sample rate of the recording"
+    },
+    "transcription_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "completed",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "transcription_error": {
+      "type": "string",
+      "description": "Error message if transcription failed"
+    },
+    "storage_location": {
+      "type": "string",
+      "enum": [
+        "cloud",
+        "local",
+        "archive"
+      ],
+      "default": "cloud"
+    },
+    "is_archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether recording has been archived"
+    },
+    "archived_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "retention_days": {
+      "type": "number",
+      "description": "How long to retain this recording (days)"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when recording will be deleted"
+    },
+    "consent_recorded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was caller consent to recording obtained"
+    },
+    "quality_score": {
+      "type": "number",
+      "description": "Audio quality score (0-100)"
+    },
+    "noise_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "moderate",
+        "high"
+      ],
+      "description": "Background noise level assessment"
+    }
+  },
+  "required": [
+    "call_record_id",
+    "file_url",
+    "file_name"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "FormSection",
+  "type": "object",
+  "properties": {
+    "template_id": {
+      "type": "string",
+      "description": "Parent FormTemplate this section belongs to"
+    },
+    "template_version": {
+      "type": "number",
+      "description": "Version of the template this section was defined against"
+    },
+    "title": {
+      "type": "string",
+      "description": "Section heading shown to the user e.g. 'Site Details', 'Pressure Test Results'"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional sub-heading or instructional text under the section title"
+    },
+    "order": {
+      "type": "number",
+      "description": "Display order within the template (ascending)"
+    },
+    "is_repeatable": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, the technician can add multiple instances of this section (e.g. one per leak point)"
+    },
+    "visible_to": {
+      "type": "string",
+      "enum": [
+        "all",
+        "technician_only",
+        "client_only",
+        "admin_only"
+      ],
+      "default": "all",
+      "description": "Controls who sees this section when the form is rendered"
+    }
+  },
+  "required": [
+    "template_id",
+    "title",
+    "order"
+  ]
+}

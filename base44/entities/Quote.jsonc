@@ -1,0 +1,87 @@
+{
+  "name": "Quote",
+  "type": "object",
+  "properties": {
+    "quote_number": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string",
+      "description": "Job this quote was generated from"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "site_id": {
+      "type": "string"
+    },
+    "branch_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "viewed",
+        "approved",
+        "declined",
+        "expired",
+        "converted_to_job"
+      ],
+      "default": "draft"
+    },
+    "description": {
+      "type": "string",
+      "description": "Scope of work"
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "subtotal": {
+      "type": "number"
+    },
+    "gst": {
+      "type": "number"
+    },
+    "total": {
+      "type": "number"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "converted_job_id": {
+      "type": "string",
+      "description": "If approved, the repair job created"
+    }
+  },
+  "required": [
+    "client_id",
+    "branch_id"
+  ]
+}

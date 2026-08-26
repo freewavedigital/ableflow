@@ -1,0 +1,167 @@
+{
+  "name": "EmailRecord",
+  "type": "object",
+  "description": "Email message record with tracking and delivery status",
+  "properties": {
+    "communication_record_id": {
+      "type": "string",
+      "description": "Reference to parent CommunicationRecord"
+    },
+    "recipient_email": {
+      "type": "string",
+      "description": "Primary recipient email address"
+    },
+    "recipient_name": {
+      "type": "string",
+      "description": "Recipient's full name"
+    },
+    "cc_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "CC recipients"
+    },
+    "bcc_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "BCC recipients"
+    },
+    "from_email": {
+      "type": "string",
+      "description": "Sender email address"
+    },
+    "from_name": {
+      "type": "string",
+      "description": "Sender display name"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body_html": {
+      "type": "string",
+      "description": "Email body in HTML"
+    },
+    "body_plain": {
+      "type": "string",
+      "description": "Email body in plain text"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When email was accepted by recipient's server"
+    },
+    "opened_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When recipient opened the email (if tracked)"
+    },
+    "clicked_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When recipient clicked a link in email (if tracked)"
+    },
+    "delivery_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "delivered",
+        "opened",
+        "bounced",
+        "rejected",
+        "failed"
+      ],
+      "default": "sent"
+    },
+    "bounce_type": {
+      "type": "string",
+      "enum": [
+        "hard",
+        "soft",
+        "complaint"
+      ],
+      "description": "Type of bounce if delivery failed"
+    },
+    "bounce_reason": {
+      "type": "string",
+      "description": "Reason for bounce"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "quote",
+        "agreement",
+        "invoice",
+        "reminder",
+        "confirmation",
+        "update",
+        "follow_up",
+        "general"
+      ],
+      "default": "general"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Reference to CommunicationTemplate if based on template"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file_url": {
+            "type": "string"
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "file_type": {
+            "type": "string"
+          },
+          "file_size": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "link_clicks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "clicked_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "click_count": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Tracking of clicked links in email"
+    },
+    "reply_to": {
+      "type": "string",
+      "description": "Reply-To email address"
+    },
+    "message_id": {
+      "type": "string",
+      "description": "SMTP Message-ID for tracking"
+    }
+  },
+  "required": [
+    "communication_record_id",
+    "recipient_email",
+    "subject"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "name": "CallRecord",
+  "type": "object",
+  "description": "Phone call record with recording and transcript references",
+  "properties": {
+    "communication_record_id": {
+      "type": "string",
+      "description": "Reference to parent CommunicationRecord"
+    },
+    "phone_number": {
+      "type": "string",
+      "description": "Phone number dialed or received from"
+    },
+    "caller_id": {
+      "type": "string",
+      "description": "Caller ID if available"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "description": "Length of call in seconds"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "call_status": {
+      "type": "string",
+      "enum": [
+        "answered",
+        "missed",
+        "voicemail",
+        "rejected",
+        "busy",
+        "no_answer"
+      ],
+      "default": "answered"
+    },
+    "recording_id": {
+      "type": "string",
+      "description": "Reference to CallRecording entity"
+    },
+    "transcript_id": {
+      "type": "string",
+      "description": "Reference to CallTranscript entity"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "scheduled_job",
+        "quote_sent",
+        "agreement_sent",
+        "info_provided",
+        "follow_up_required",
+        "issue_resolved",
+        "escalated",
+        "other"
+      ],
+      "description": "What resulted from this call"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Brief summary of call discussion"
+    },
+    "action_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "assigned_to": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    "sentiment": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "neutral",
+        "negative"
+      ],
+      "description": "Sentiment analysis of call"
+    },
+    "transferred": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was the call transferred"
+    },
+    "transferred_to": {
+      "type": "string",
+      "description": "User email call was transferred to"
+    },
+    "quality_score": {
+      "type": "number",
+      "description": "Audio quality score if available"
+    }
+  },
+  "required": [
+    "communication_record_id",
+    "phone_number",
+    "call_status"
+  ]
+}

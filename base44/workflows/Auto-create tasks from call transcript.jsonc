@@ -1,0 +1,37 @@
+{
+  "name": "Auto-create tasks from call transcript",
+  "description": "When a CallTranscript record is created, use AI to extract action items and create pending TaskReminder records linked to the originating call entity.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "CallTranscript"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "auto_create_tasks_from_call_transcript",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "analyzeTranscriptTasks",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "analyzeTranscriptTasks"
+  }
+}
